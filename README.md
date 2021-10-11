@@ -1,6 +1,8 @@
 # ZPownage v1.0.1
 A World of Warcraft addon which tracks player kills, and awards the player with Unreal Tournament style achievements.
 
+![ZPownageLogo](https://github.com/zxeltor/zpownage/blob/main/Screenshots/BoomkinDance_400x400.png)
+
 ## Overview 
 This addon tracks player kills, and awards the player with Unreal Tournament style achievements.  Achievements for multi-kills and killing sprees are displayed to the user as a flash of text in the middle of the screen, along with audio playback of the Unreal Tournament Announcer.
 
