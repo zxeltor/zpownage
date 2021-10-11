@@ -44,4 +44,7 @@ Awards for building up chains of kills in quick succession (4 seconds apart or l
 * /zp "Shows the other slash command usage"
 
 ## Installation
+### Manual Install
 Place the folder "ZPownage" and it's contents inside your World of Warcraft addons folder. You'll need to restart World of Warcraft to see the the addon.
+### Curseforge via Overwolf
+https://www.curseforge.com/wow/addons/zpownage
