@@ -42,3 +42,6 @@ Awards for building up chains of kills in quick succession (4 seconds apart or l
 * /zp reset "Reset unit kills"
 * /zp pvp "Toggle player only kill mode" - By default the addon only tracks player kills. If disabled, it tracks all kills made by the player.
 * /zp "Shows the other slash command usage"
+
+## Installation
+You can just drop the zpownage folder inside your World of Warcraft addons folder. You'll need to restart World of Warcraft to see the the addon.
