@@ -2,6 +2,6 @@
 ## Title: ZPownage
 ## Notes: Announce and display your multi kill and killing spree achievements. Based on Unreal Tournament rules (a few) and announcer sounds.
 ## Author: Todd Taylor
-## Version: 1.0.1
+## Version: 1.0.2
 
 ZPownage.lua
