@@ -1,4 +1,4 @@
-# ZPownage v1.0.1
+# ZPownage v1.1.0
 A World of Warcraft addon which tracks player kills, and awards the player with Unreal Tournament style achievements.
 
 ![ZPownageLogo](https://github.com/zxeltor/zpownage/blob/main/Screenshots/BoomkinDance_400x400.png)
@@ -42,8 +42,8 @@ Awards for building up chains of kills in quick succession (4 seconds apart or l
 
 ## Slash Commands
 * /zp reset "Reset unit kills"
-* /zp pvp "Toggle player only kill mode" - By default the addon only tracks player kills. If disabled, it tracks all kills made by the player.
-* /zp "Shows the other slash command usage"
+* /zp pvp   "Toggle player only kill mode" - By default the addon only tracks player kills. If disabled, it tracks all kills made by the player.
+* /zp   "Show addon settings UI"
 
 ## Installation
 ### Manual Install
