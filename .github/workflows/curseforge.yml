@@ -1,2 +1,0 @@
-- name: Upload to CurseForge
-  uses: itsmeow/curseforge-upload@v3
