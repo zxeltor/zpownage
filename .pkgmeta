@@ -1,0 +1,5 @@
+package-as: ZPownage
+enable-nolib-creation: no
+
+move-folders:
+  zpownage/ZPownage: ZPownage
