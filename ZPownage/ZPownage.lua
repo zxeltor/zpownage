@@ -9,8 +9,6 @@ local _zp_const_audioFileBaseFolder = "Interface\\AddOns\\ZPownage\\Audio\\";
 local _zp_playerGUID
 -- A flag used to track debug logging
 local _zp_isDebugMode = false;
--- True is we only want to process player kills, False process all kills.
-local _zp_isProcessPlayerKillsOnly = true
 -- The number of consecutive kills with a death. Is reset after player death.
 local _zp_numberOfPlayerKillsBeforeDeath = 0
 -- The number of consecutive kills to be considerd for multi kill processing.
@@ -22,6 +20,8 @@ local _zp_timeElapsedInSecondsSinceLastKill = 0
 -- Used to determine if the achievment window is open of not. This is used to block/delay new achievments while 
 -- an existing one is still being displayed.
 local _zp_isAchievementBeingDisplayed = false;
+
+local _zp_isAddonSettingsFrameAdded = false;
 
 -- A table used to to keep track of units the player has attacked
 local _zp_table_inCombatWith = {}
@@ -81,6 +81,19 @@ local _zp_table_achievementDisplayText = {
     [_zp_ACHIEVEMENT_TYPE.WICKED] = "WICKED SICK!"
 }
 
+-- Here we check if our saved variables exist. If not we set defaults.
+local function _zpValidateSavedVariables()
+    if not _zp_PlayerConfigurableSettingsTable then
+        _zp_PlayerConfigurableSettingsTable = {
+            isProcessPlayerKillsOnly = true
+        }
+    end
+
+    if _zp_PlayerConfigurableSettingsTable.isProcessPlayerKillsOnly == nil then
+        _zp_PlayerConfigurableSettingsTable.isProcessPlayerKillsOnly = true
+    end
+end
+
 ---- Functions to simplying table usage
 local function _zpTablelength(t)
     local count = 0
@@ -115,11 +128,11 @@ end
 
 ---- Define various UI frames used by this addon.
 -- This frame is used to process events fired off by the game. It's never displayed to the user.
-local _zp_frame_event = CreateFrame("Frame", "zpEventFrame")
+local _zp_frame_event = CreateFrame("Frame", "_zpEventFrame")
 _zp_frame_event:Hide()
 
 -- The achievment frame. It's used to flash achievement messages to the screen.
-local _zp_frame_achievementMessage = CreateFrame("Frame", "zpAchievmentFrame", UIParent)
+local _zp_frame_achievementMessage = CreateFrame("Frame", "_zpAchievmentFrame", UIParent)
 _zp_frame_achievementMessage:SetFrameStrata("BACKGROUND")
 _zp_frame_achievementMessage:SetWidth(256)
 _zp_frame_achievementMessage:SetHeight(64)
@@ -159,6 +172,98 @@ local function _zpSendMessageToConsole(message)
     if message ~= "" then
         print("ZPownage: " .. message)
     end
+end
+
+-- A function to Reset player kill stats. Called when a player enters a new world zone/instance, or when a player dies.
+local function _zpResetPlayer()
+    _zp_playerGUID = UnitGUID("player")
+    _zp_numberOfPlayerKillsBeforeDeath = 0
+    _zp_numberOfConsectutiveMultiKills = 0
+    _zp_table_inCombatWith = {}
+    _zpSendMessageToConsole("Player kills have been set to zero")
+end
+
+-- Function used to enable/disable pLayer only killing
+local function _zpTogglePlayerOnlyKillFlag()
+    if _zp_PlayerConfigurableSettingsTable.isProcessPlayerKillsOnly then
+        _zp_PlayerConfigurableSettingsTable.isProcessPlayerKillsOnly = false
+        _zpSendMessageToConsole("Player only kill mode is DISABLED")
+    else
+        _zp_PlayerConfigurableSettingsTable.isProcessPlayerKillsOnly = true
+        _zpSendMessageToConsole("PVP only kill mode is ENABLED")
+    end
+end
+
+-- Function used to add addon settings for Zpownage in the Blizzard addon UI (Interface/Addons)
+local function _zpAddPlayerConfigSettingsToAddonUI()
+
+    if _zp_isAddonSettingsFrameAdded then return end
+
+    local _zp_panel = CreateFrame( "Frame", "_zpAddonPanel", UIParent);
+     -- Register in the Interface Addon Options GUI
+    -- Set the name for the Category for the Options Panel
+    _zp_panel.name = "ZPownage";
+
+    local _zp_panel_title_fontStringMessageBackground = _zp_panel:CreateFontString(_zp_panel, "OVERLAY", "GameFontNormal")
+    _zp_panel_title_fontStringMessageBackground:SetTextHeight(36)
+    _zp_panel_title_fontStringMessageBackground:SetTextColor(0, 0, 0, 1)
+    _zp_panel_title_fontStringMessageBackground:SetPoint("TOP", 3, -17)
+    _zp_panel_title_fontStringMessageBackground:SetText("ZPownage")
+
+    local _zp_panel_title_fontStringMessageBackground2 = _zp_panel:CreateFontString(_zp_panel, "OVERLAY", "GameFontNormal")
+    _zp_panel_title_fontStringMessageBackground2:SetTextHeight(36)
+    _zp_panel_title_fontStringMessageBackground2:SetTextColor(0, 0, 0, 1)
+    _zp_panel_title_fontStringMessageBackground2:SetPoint("TOP", 3, -23)
+    _zp_panel_title_fontStringMessageBackground2:SetText("ZPownage")
+
+    local _zp_panel_title_fontStringMessageBackground3 = _zp_panel:CreateFontString(_zp_panel, "OVERLAY", "GameFontNormal")
+    _zp_panel_title_fontStringMessageBackground3:SetTextHeight(36)
+    _zp_panel_title_fontStringMessageBackground3:SetTextColor(0, 0, 0, 1)
+    _zp_panel_title_fontStringMessageBackground3:SetPoint("TOP", -3, -17)
+    _zp_panel_title_fontStringMessageBackground3:SetText("ZPownage")
+
+    local _zp_panel_title_fontStringMessageBackground4 = _zp_panel:CreateFontString(_zp_panel, "OVERLAY", "GameFontNormal")
+    _zp_panel_title_fontStringMessageBackground4:SetTextHeight(36)
+    _zp_panel_title_fontStringMessageBackground4:SetTextColor(0, 0, 0, 1)
+    _zp_panel_title_fontStringMessageBackground4:SetPoint("TOP", -3, -23)
+    _zp_panel_title_fontStringMessageBackground4:SetText("ZPownage")
+
+    local _zp_panel_title_fontStringMessage = _zp_panel:CreateFontString(_zp_panel, "OVERLAY", "GameFontNormal")
+    _zp_panel_title_fontStringMessage:SetTextHeight(36)
+    _zp_panel_title_fontStringMessage:SetTextColor(0, 1, 0, 1)
+    _zp_panel_title_fontStringMessage:SetPoint("TOP", 0, -20)
+    _zp_panel_title_fontStringMessage:SetText("ZPownage")
+
+    local _zp_myCheckButtonPvpOnly = CreateFrame("CheckButton", "_zpPvpOnlyCheckBox", _zp_panel, "UICheckButtonTemplate")
+    _zp_myCheckButtonPvpOnly:SetPoint("TOPLEFT", 10, -40)
+    _zp_myCheckButtonPvpOnly:SetChecked(_zp_PlayerConfigurableSettingsTable.isProcessPlayerKillsOnly)
+    _G[_zp_myCheckButtonPvpOnly:GetName().."Text"]:SetText("Player Only Kill Mode")
+    _zp_myCheckButtonPvpOnly:SetScript("OnClick", function(self, button, down)
+        _zpTogglePlayerOnlyKillFlag()
+    end)
+
+    local _zp_myButtonReset = CreateFrame("Button", "_zpResetButton", _zp_panel, "OptionsButtonTemplate")
+    _zp_myButtonReset:SetPoint("TOPLEFT", 10, -80)
+    _zp_myButtonReset:SetText("Reset Kills")
+    _zp_myButtonReset:SetScript("OnClick", function(self, button, down) _zpResetPlayer() end)
+
+    local _zp_panel_usage_fontStringLine1 = _zp_panel:CreateFontString(_zp_panel, "OVERLAY", "GameTooltipText")
+    _zp_panel_usage_fontStringLine1:SetPoint("BOTTOMLEFT", 10, 70)
+    _zp_panel_usage_fontStringLine1:SetText("Available Slash Commands:")
+    local _zp_panel_usage_fontStringLine2 = _zp_panel:CreateFontString(_zp_panel, "OVERLAY", "GameTooltipText")
+    _zp_panel_usage_fontStringLine2:SetPoint("BOTTOMLEFT", 10, 50)
+    _zp_panel_usage_fontStringLine2:SetText('/zp reset  "Reset unit kills"')
+    local _zp_panel_usage_fontStringLine3 = _zp_panel:CreateFontString(_zp_panel, "OVERLAY", "GameTooltipText")
+    _zp_panel_usage_fontStringLine3:SetPoint("BOTTOMLEFT", 10, 35)
+    _zp_panel_usage_fontStringLine3:SetText('/zp pvp    "Toggle player only kill mode" - If disabled, it tracks all kills made by the player.')
+    local _zp_panel_usage_fontStringLine4 = _zp_panel:CreateFontString(_zp_panel, "OVERLAY", "GameTooltipText")
+    _zp_panel_usage_fontStringLine4:SetPoint("BOTTOMLEFT", 10, 20)
+    _zp_panel_usage_fontStringLine4:SetText('/zp        "Show addon settings UI"')
+
+    -- Add the panel to the Blizzard Interface/Addons UI
+    InterfaceOptions_AddCategory(_zp_panel);
+
+    _zp_isAddonSettingsFrameAdded = true
 end
 
 -- Display an achievment message on the screen using the achievement frame, then calls itself using a timer to close itself.
@@ -303,15 +408,6 @@ local function _zpProcessConsecutiveKill(timeElapsedInSecondsForCurrentKill)
     end
 end
 
--- A function to Reset player kill stats. Called when a player enters a new world zone/instance, or when a player dies.
-local function _zpResetPlayer()
-    _zp_playerGUID = UnitGUID("player")
-    _zp_numberOfPlayerKillsBeforeDeath = 0
-    _zp_numberOfConsectutiveMultiKills = 0
-    _zp_table_inCombatWith = {}
-    _zpSendMessageToConsole("Player kills have been set to zero")
-end
-
 -- A callback function to handle player death. Reset our player stats and display our player dead achievment :).
 local function _zpProcessDeath()
     _zpAddAchievementToQueue(_zp_ACHIEVEMENT_TYPE.DEAD)
@@ -348,7 +444,7 @@ local function _zpProcessCombatLogEvent()
     if subevent == "SWING_DAMAGE" or subevent == "SPELL_DAMAGE" then
 
         if sourceGUID == _zp_playerGUID and destGUID and _zpTableHasValue(_zp_table_inCombatWith, destGUID) == false then
-            if _zp_isProcessPlayerKillsOnly and string.find(destGUID, "^Player-") == nil then return end
+            if _zp_PlayerConfigurableSettingsTable.isProcessPlayerKillsOnly and string.find(destGUID, "^Player-") == nil then return end
             _zpTableInsertValue(_zp_table_inCombatWith, destGUID)
         end
 
@@ -370,17 +466,6 @@ local function _zpToggleDebugFlag()
     else
         _zp_isDebugMode = true
         _zpSendMessageToConsole("DEBUG mode is ENABLED")
-    end
-end
-
--- Function used to enable/disable pLayer only killing
-local function _zpTogglePlayerOnlyKillFlag()
-    if _zp_isProcessPlayerKillsOnly then
-        _zp_isProcessPlayerKillsOnly = false
-        _zpSendMessageToConsole("Player only kill mode is DISABLED")
-    else
-        _zp_isProcessPlayerKillsOnly = true
-        _zpSendMessageToConsole("PVP only kill mode is ENABLED")
     end
 end
 
@@ -466,9 +551,11 @@ local function _zpSetEventScript()
             if _zp_isDebugMode then
                 _zpSendMessageToConsole("PLAYER_ENTERING_WORLD fired")
             end
+            _zpValidateSavedVariables()
             _zpRegisterPrimaryEvents(true)
             _zpResetPlayer()
             _zpResetFrames()
+            _zpAddPlayerConfigSettingsToAddonUI()
         elseif event == "PLAYER_LEAVING_WORLD" then
             if _zp_isDebugMode then
                 _zpSendMessageToConsole("PLAYER_LEAVING_WORLD fired")
@@ -517,7 +604,9 @@ SlashCmdList["ZPOWNAGE"] = function(msg)
     elseif msg and msg == "pvp" then
         _zpTogglePlayerOnlyKillFlag()
     else
-        _zpSendUsageToConsole()
+        -- Open the WOW Interface/Addon UI
+        InterfaceOptionsFrame_Show()
+        InterfaceOptionsFrame_OpenToCategory("ZPownage")
     end
 end
 
