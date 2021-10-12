@@ -1,5 +1,9 @@
 package-as: ZPownage
 enable-nolib-creation: no
 
+ignore:
+    - Screenshots
+    - Notes 
+
 move-folders:
   zpownage/ZPownage: ZPownage
