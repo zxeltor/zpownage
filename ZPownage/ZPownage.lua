@@ -194,6 +194,91 @@ local function _zpTogglePlayerOnlyKillFlag()
     end
 end
 
+-- Display an achievment message on the screen using the achievement frame, then calls itself using a timer to close itself.
+local function _zpSendMessageToScreen(message)
+    if message == "" then
+        _zp_frame_achievementMessage:Hide()
+        _zp_isAchievementBeingDisplayed = false
+    else
+        _zp_frame_message_fontStringMessageBackground:SetText(message)
+        _zp_frame_message_fontStringMessageBackground2:SetText(message)
+        _zp_frame_message_fontStringMessageBackground3:SetText(message)
+        _zp_frame_message_fontStringMessageBackground4:SetText(message)
+        _zp_frame_message_fontStringMessage:SetText(message)
+        _zp_frame_achievementMessage:Show()
+        _zp_isAchievementBeingDisplayed = true
+        C_Timer.After(_zp_const_waitForAchievmentToCompleteInSeconds, function() _zpSendMessageToScreen("") end)
+    end
+end
+
+-- Display achievments to the console and the screen using the achievement window.
+local function _zpDisplayMessageToConsoleAndScreen(achievementType)
+    if achievementType == _zp_ACHIEVEMENT_TYPE.DEAD or achievementType == _zp_ACHIEVEMENT_TYPE.FIRSTBLOOD then
+        -- Display to the console
+        _zpSendMessageToConsole(_zp_table_achievementDisplayText[achievementType])
+    else
+        -- Display multi kills to the console
+        if achievementType == _zp_ACHIEVEMENT_TYPE.DOUBLE or achievementType == _zp_ACHIEVEMENT_TYPE.MULTI or
+            achievementType == _zp_ACHIEVEMENT_TYPE.MEGA or achievementType == _zp_ACHIEVEMENT_TYPE.MONSTER or
+            achievementType == _zp_ACHIEVEMENT_TYPE.ULTRA or achievementType == _zp_ACHIEVEMENT_TYPE.LUDICROUS or
+            achievementType == _zp_ACHIEVEMENT_TYPE.HOLYSHIT then
+            _zpSendMessageToConsole("Multi kill: " .. _zp_numberOfConsectutiveMultiKills+1 .. " kills")
+        else
+            -- Display killing sprees to the console
+            _zpSendMessageToConsole("Killing spree: " .. _zp_numberOfPlayerKillsBeforeDeath .. " kills")
+        end
+    end
+
+    -- Display achievment to the screen using the achievment frame
+    _zpSendMessageToScreen(_zp_table_achievementDisplayText[achievementType])
+end
+
+-- Function called by an event to reset the achievements frame by closing it.
+local function _zpResetFrames()
+    _zp_frame_event:Hide()
+    _zpSendMessageToScreen("")
+end
+
+-- Function to test an achievment announcement
+local function _zpProcessTestAchievement(achievmentType)
+    _zpDisplayMessageToConsoleAndScreen(achievmentType)
+
+    local willPlay, soundHandle = PlaySoundFile(_zp_table_achievementAudioFilePath[achievmentType], "SFX")
+    if willPlay == false then _zpSendMessageToConsole("Error: Unable to play audio file '" .. _zp_table_achievementAudioFilePath[achievmentType] .. "'") end
+end
+
+-- This function processes our achievment queue table
+local function _zpProcessAchievementQueue()
+    if _zp_isAchievementBeingDisplayed then
+        C_Timer.After(_zp_const_waitForAchievmentToCompleteInSeconds, function() _zpProcessAchievementQueue() end)
+    end
+
+    if _zpTablelength(_zp_table_achievmentQueue) == 0 then return end
+
+    local achievmentType = _zpTableRemoveIndex(_zp_table_achievmentQueue, 1)
+    if achievmentType == nil then return end
+
+    _zpDisplayMessageToConsoleAndScreen(achievmentType)
+
+    local willPlay, soundHandle = PlaySoundFile(_zp_table_achievementAudioFilePath[achievmentType], "SFX")
+    if willPlay == false then _zpSendMessageToConsole("Error: Unable to play audio file '" .. _zp_table_achievementAudioFilePath[achievmentType] .. "'") end
+
+    if _zpTablelength(_zp_table_achievmentQueue) > 0 then
+        C_Timer.After(_zp_const_waitForAchievmentToCompleteInSeconds, function() _zpProcessAchievementQueue() end)
+    end
+end
+
+-- Used to add new achievements to the achievement queue table
+local function _zpAddAchievementToQueue(achievmentType)
+    if achievmentType == nil then return end
+
+    _zpTableInsertValue(_zp_table_achievmentQueue, achievmentType)
+
+    if _zpTablelength(_zp_table_achievmentQueue) == 1 then
+        _zpProcessAchievementQueue()
+    end
+end
+
 -- Function used to add addon settings for Zpownage in the Blizzard addon UI (Interface/Addons)
 local function _zpAddPlayerConfigSettingsToAddonUI()
 
@@ -247,100 +332,31 @@ local function _zpAddPlayerConfigSettingsToAddonUI()
     _zp_myButtonReset:SetText("Reset Kills")
     _zp_myButtonReset:SetScript("OnClick", function(self, button, down) _zpResetPlayer() end)
 
-    local _zp_panel_usage_fontStringLine1 = _zp_panel:CreateFontString(_zp_panel, "OVERLAY", "GameTooltipText")
-    _zp_panel_usage_fontStringLine1:SetPoint("BOTTOMLEFT", 10, 70)
-    _zp_panel_usage_fontStringLine1:SetText("Available Slash Commands:")
-    local _zp_panel_usage_fontStringLine2 = _zp_panel:CreateFontString(_zp_panel, "OVERLAY", "GameTooltipText")
-    _zp_panel_usage_fontStringLine2:SetPoint("BOTTOMLEFT", 10, 50)
-    _zp_panel_usage_fontStringLine2:SetText('/zp reset  "Reset unit kills"')
-    local _zp_panel_usage_fontStringLine3 = _zp_panel:CreateFontString(_zp_panel, "OVERLAY", "GameTooltipText")
-    _zp_panel_usage_fontStringLine3:SetPoint("BOTTOMLEFT", 10, 35)
-    _zp_panel_usage_fontStringLine3:SetText('/zp pvp    "Toggle player only kill mode" - If disabled, it tracks all kills made by the player.')
-    local _zp_panel_usage_fontStringLine4 = _zp_panel:CreateFontString(_zp_panel, "OVERLAY", "GameTooltipText")
-    _zp_panel_usage_fontStringLine4:SetPoint("BOTTOMLEFT", 10, 20)
-    _zp_panel_usage_fontStringLine4:SetText('/zp        "Show addon settings UI"')
+    local _zp_myButtonTest = CreateFrame("Button", "_zpTestButton", _zp_panel, "OptionsButtonTemplate")
+    _zp_myButtonTest:SetPoint("TOPLEFT", 120, -80)
+    _zp_myButtonTest:SetText("Test")
+    _zp_myButtonTest:SetScript("OnClick", function(self, button, down) _zpProcessTestAchievement(_zp_ACHIEVEMENT_TYPE.DOUBLE) end)
+
+    local _zp_panel_usage_fontStringLineUsage = _zp_panel:CreateFontString(_zp_panel, "OVERLAY", "GameTooltipText")
+    _zp_panel_usage_fontStringLineUsage:SetPoint("BOTTOMLEFT", 10, 85)
+    _zp_panel_usage_fontStringLineUsage:SetText("Available Slash Commands:")
+    local _zp_panel_usage_fontStringLineReset = _zp_panel:CreateFontString(_zp_panel, "OVERLAY", "GameTooltipText")
+    _zp_panel_usage_fontStringLineReset:SetPoint("BOTTOMLEFT", 10, 65)
+    _zp_panel_usage_fontStringLineReset:SetText('/zp reset  "Reset unit kills"')
+    local _zp_panel_usage_fontStringLinePvp = _zp_panel:CreateFontString(_zp_panel, "OVERLAY", "GameTooltipText")
+    _zp_panel_usage_fontStringLinePvp:SetPoint("BOTTOMLEFT", 10, 50)
+    _zp_panel_usage_fontStringLinePvp:SetText('/zp pvp      "Toggle player only kill mode" - If disabled, it tracks all kills made by the player')
+    local _zp_panel_usage_fontStringLineTest = _zp_panel:CreateFontString(_zp_panel, "OVERLAY", "GameTooltipText")
+    _zp_panel_usage_fontStringLineTest:SetPoint("BOTTOMLEFT", 10, 35)
+    _zp_panel_usage_fontStringLineTest:SetText('/zp test    "Test achievment display and audio playback"')
+    local _zp_panel_usage_fontStringLineUi = _zp_panel:CreateFontString(_zp_panel, "OVERLAY", "GameTooltipText")
+    _zp_panel_usage_fontStringLineUi:SetPoint("BOTTOMLEFT", 10, 20)
+    _zp_panel_usage_fontStringLineUi:SetText('/zp           "Show addon settings UI and usage"')
 
     -- Add the panel to the Blizzard Interface/Addons UI
     InterfaceOptions_AddCategory(_zp_panel);
 
     _zp_isAddonSettingsFrameAdded = true
-end
-
--- Display an achievment message on the screen using the achievement frame, then calls itself using a timer to close itself.
-local function _zpSendMessageToScreen(message)
-    if message == "" then
-        _zp_frame_achievementMessage:Hide()
-        _zp_isAchievementBeingDisplayed = false
-    else
-        _zp_frame_message_fontStringMessageBackground:SetText(message)
-        _zp_frame_message_fontStringMessageBackground2:SetText(message)
-        _zp_frame_message_fontStringMessageBackground3:SetText(message)
-        _zp_frame_message_fontStringMessageBackground4:SetText(message)
-        _zp_frame_message_fontStringMessage:SetText(message)
-        _zp_frame_achievementMessage:Show()
-        _zp_isAchievementBeingDisplayed = true
-        C_Timer.After(_zp_const_waitForAchievmentToCompleteInSeconds, function() _zpSendMessageToScreen("") end)
-    end
-end
-
--- Display achievments to the console and the screen using the achievement window.
-local function _zpDisplayMessageToConsoleAndScreen(achievementType)
-    if achievementType == _zp_ACHIEVEMENT_TYPE.DEAD or achievementType == _zp_ACHIEVEMENT_TYPE.FIRSTBLOOD then
-        -- Display to the console
-        _zpSendMessageToConsole(_zp_table_achievementDisplayText[achievementType])
-    else
-        -- Display multi kills to the console
-        if achievementType == _zp_ACHIEVEMENT_TYPE.DOUBLE or achievementType == _zp_ACHIEVEMENT_TYPE.MULTI or
-            achievementType == _zp_ACHIEVEMENT_TYPE.MEGA or achievementType == _zp_ACHIEVEMENT_TYPE.MONSTER or
-            achievementType == _zp_ACHIEVEMENT_TYPE.ULTRA or achievementType == _zp_ACHIEVEMENT_TYPE.LUDICROUS or
-            achievementType == _zp_ACHIEVEMENT_TYPE.HOLYSHIT then
-            _zpSendMessageToConsole("Multi kill: " .. _zp_numberOfConsectutiveMultiKills+1 .. " kills")
-        else
-            -- Display killing sprees to the console
-            _zpSendMessageToConsole("Killing spree: " .. _zp_numberOfPlayerKillsBeforeDeath .. " kills")
-        end
-    end
-
-    -- Display achievment to the screen using the achievment frame
-    _zpSendMessageToScreen(_zp_table_achievementDisplayText[achievementType])
-end
-
--- Function called by an event to reset the achievements frame by closing it.
-local function _zpResetFrames()
-    _zp_frame_event:Hide()
-    _zpSendMessageToScreen("")
-end
-
--- This function processes our achievment queue table
-local function _zpProcessAchievementQueue()
-    if _zp_isAchievementBeingDisplayed then
-        C_Timer.After(_zp_const_waitForAchievmentToCompleteInSeconds, function() _zpProcessAchievementQueue() end)
-    end
-
-    if _zpTablelength(_zp_table_achievmentQueue) == 0 then return end
-
-    local achievmentType = _zpTableRemoveIndex(_zp_table_achievmentQueue, 1)
-    if achievmentType == nil then return end
-
-    _zpDisplayMessageToConsoleAndScreen(achievmentType)
-
-    local willPlay, soundHandle = PlaySoundFile(_zp_table_achievementAudioFilePath[achievmentType], "SFX")
-    if willPlay == false then _zpSendMessageToConsole("Error: Unable to play audio file '" .. _zp_table_achievementAudioFilePath[achievmentType] .. "'") end
-
-    if _zpTablelength(_zp_table_achievmentQueue) > 0 then
-        C_Timer.After(_zp_const_waitForAchievmentToCompleteInSeconds, function() _zpProcessAchievementQueue() end)
-    end
-end
-
--- Used to add new achievements to the achievement queue table
-local function _zpAddAchievementToQueue(achievmentType)
-    if achievmentType == nil then return end
-
-    _zpTableInsertValue(_zp_table_achievmentQueue, achievmentType)
-
-    if _zpTablelength(_zp_table_achievmentQueue) == 1 then
-        _zpProcessAchievementQueue()
-    end
 end
 
 -- Function used to award players with a killing spree achievment.
@@ -474,6 +490,8 @@ local function _zpSendUsageToConsole()
     _zpSendMessageToConsole("Usage ..")
     _zpSendMessageToConsole("/zp reset  'Reset unit kills'")
     _zpSendMessageToConsole("/zp pvp    'Toggle Player ONLY kill mode'")
+    _zpSendMessageToConsole("/zp test   'Test achievment display and audio playback'")
+    _zpSendMessageToConsole("/zp        'Show addon settings UI and usage'")
 end
 
 -- Function to register our primary events
@@ -603,7 +621,10 @@ SlashCmdList["ZPOWNAGE"] = function(msg)
         _zpResetPlayer()
     elseif msg and msg == "pvp" then
         _zpTogglePlayerOnlyKillFlag()
+    elseif msg and msg == "test" then
+        _zpProcessTestAchievement(_zp_ACHIEVEMENT_TYPE.DOUBLE)
     else
+        _zpSendUsageToConsole()
         -- Open the WOW Interface/Addon UI
         InterfaceOptionsFrame_Show()
         InterfaceOptionsFrame_OpenToCategory("ZPownage")

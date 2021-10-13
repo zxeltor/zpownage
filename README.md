@@ -1,4 +1,4 @@
-# ZPownage v1.1.0.1
+# ZPownage v1.2.0
 A World of Warcraft addon which tracks player kills, and awards the player with Unreal Tournament style achievements.
 
 ![ZPownageLogo](https://github.com/zxeltor/zpownage/blob/main/Screenshots/BoomkinDance_400x400.png)
@@ -6,18 +6,19 @@ A World of Warcraft addon which tracks player kills, and awards the player with 
 ## Overview 
 This addon tracks player kills, and awards the player with Unreal Tournament style achievements.  Achievements for multi-kills and killing sprees are displayed to the user as a flash of text in the middle of the screen, along with audio playback of the Unreal Tournament Announcer.
 
-**Note:** This addon is for fun only. This has no affect on your official in game statistics tracked by Blizzard.
+Note: This addon is for fun only. This has no affect on your official in game statistics tracked by Blizzard.
 
 ## Details 
 The addon maintains a list of units attacked by the player while in combat. Each unit killed by the player while in combat is counted as a kill. When the player reaches certain consecutive kill achievements, a message is displayed to the screen, along with an audio file playback from the Unreal Tournament Announcer.
 
 Your consecutive kill count is reset when you enter a new zone, or player death occurs. This puts you back at the bottom of the achievement list.
 
-**Note(s):**
+Note(s):
 * If you attack a unit, then leave combat with the unit before they die, you won't get credit for the kill.
 * Group unit kills don't count towards a players kill count, unless the player actually attacked the killed unit.
 
-## Scoring 
+
+## Kill Scoring 
 
 ### Killing Sprees
 Awards for every 5th kill without dying
@@ -40,10 +41,33 @@ Awards for building up chains of kills in quick succession (4 seconds apart or l
 * Ludicrous Kill - 7 kills
 * HOLY S**T - 8+ kills
 
+
+## Settings
+The WOW Interface AddOn UI has a section for ZPownage settings.
+
+![ZPownageConfigSettings](https://github.com/zxeltor/zpownage/blob/main/Screenshots/ConfigUi.jpg)
+
+* You can set the addon to track player kills only, or all kills.
+* Reset your kill count. This resets you consecutive kills and achievments.
+* Test kill achievment display on your screen, along with the associated audio playback.
+
+You can open this Zpownage settings dialog through the WOW interface, or by using the Slash Command: "/zp"
+
+
+## Audio Playback
+Audio playback occurs with each achievment notification. To hear the audio playback you need to have Sound Effects enabled in WOW Sound settings.
+
+![WowAudioSettings](https://github.com/zxeltor/zpownage/blob/main/Screenshots/AudioSettings.jpg)
+
+You can test audio playback by using using the Test button in the ZPownage settings UI above, or by using the Slash Command: "/zp test"
+
+
 ## Slash Commands
 * /zp reset "Reset unit kills"
-* /zp pvp   "Toggle player only kill mode" - By default the addon only tracks player kills. If disabled, it tracks all kills made by the player.
-* /zp   "Show addon settings UI"
+* /zp pvp   "Toggle player only kill mode" - By default the addon only tracks player kills. If disabled, it tracks all kills made by the player."
+* /zp test  "Test achievment display and audio playback"
+* /zp       "Show addon settings UI"
+
 
 ## Installation
 ### Manual Install
