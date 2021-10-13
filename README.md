@@ -51,7 +51,7 @@ The WOW Interface AddOn UI has a section for ZPownage settings.
 * Reset your kill count. This resets you consecutive kills and achievments.
 * Test kill achievment display on your screen, along with the associated audio playback.
 
-You can open this Zpownage settings dialog through the WOW interface, or by using the Slash Command: "/zp"
+You can open this ZPownage settings dialog through the WOW interface, or by using the Slash Command: "/zp"
 
 
 ## Audio Playback
@@ -59,7 +59,7 @@ Audio playback occurs with each achievment notification. To hear the audio playb
 
 ![WowAudioSettings](https://github.com/zxeltor/zpownage/blob/main/Screenshots/AudioSettings.jpg)
 
-You can test audio playback by using using the Test button in the ZPownage settings UI above, or by using the Slash Command: "/zp test"
+You can test audio playback by clicking the Test button in the ZPownage settings UI above, or by using the Slash Command: "/zp test"
 
 
 ## Slash Commands
