@@ -30,18 +30,40 @@ local _zp_table_achievmentQueue = {}
 
 -- Our achievements enum table, or a table used like an enum. The is a list of available player achievements
 local _zp_ACHIEVEMENT_TYPE = {
-    DEAD = 1, DOMINATING = 2, DOUBLE = 3, FIRSTBLOOD = 4, FLAWLESS = 5, GODLIKE = 6, HOLYSHIT = 7, KILLSPREE = 8, LUDICROUS = 9,
-    MEGA = 10, MONSTER = 11, MULTI = 12, PREP4BATTLE = 13, RAMPAGE = 14, TRIPPLE = 15, ULTRA = 16, UNREAL = 17, UNSTOPPABLE = 18,
-    WICKED = 19
+    DEAD = 1, DOMINATING = 2, DOUBLE = 3, FIRSTBLOOD = 4, GODLIKE = 5, HOLYSHIT = 6, KILLSPREE = 7, LUDICROUS = 8,
+    MEGA = 9, MONSTER = 10, MULTI = 11, PREP4BATTLE = 12, RAMPAGE = 13, ULTRA = 14, UNSTOPPABLE = 15,
+    WICKED = 16
+}
+
+local _zp_ACHIEVEMENT_GENRE_TYPE = {
+    UT = 1, DUKE = 2
 }
 
 -- A table of audio file path strings
-local _zp_table_achievementAudioFilePath = {
+local _zp_table_achievementAudioFilePath_DUKE = {
+    [_zp_ACHIEVEMENT_TYPE.DEAD] = _zp_const_audioFileBaseFolder .. "Duke\\" .. "DukeDeath.mp3",
+    [_zp_ACHIEVEMENT_TYPE.DOMINATING] = _zp_const_audioFileBaseFolder .. "Duke\\" .. "ThatsWhatICallReducingHeadCount.mp3",
+    [_zp_ACHIEVEMENT_TYPE.DOUBLE] = _zp_const_audioFileBaseFolder .. "Duke\\" .. "DoubleYourPleasure.mp3",
+    [_zp_ACHIEVEMENT_TYPE.FIRSTBLOOD] = _zp_const_audioFileBaseFolder .. "Duke\\" .. "Finally.mp3",
+    [_zp_ACHIEVEMENT_TYPE.GODLIKE] = _zp_const_audioFileBaseFolder .. "Duke\\" .. "IveGotBallsOfSteel.mp3",
+    [_zp_ACHIEVEMENT_TYPE.HOLYSHIT] = _zp_const_audioFileBaseFolder .. "Duke\\" .. "HolyShit.mp3",
+    [_zp_ACHIEVEMENT_TYPE.KILLSPREE] = _zp_const_audioFileBaseFolder .. "Duke\\" .. "ComeGetSome.mp3",
+    [_zp_ACHIEVEMENT_TYPE.LUDICROUS] = _zp_const_audioFileBaseFolder .. "Duke\\" .. "LetGodSortThemOut.mp3",
+    [_zp_ACHIEVEMENT_TYPE.MEGA] = _zp_const_audioFileBaseFolder .. "Duke\\" .. "WhatAMess.mp3",
+    [_zp_ACHIEVEMENT_TYPE.MONSTER] = _zp_const_audioFileBaseFolder .. "Duke\\" .. "IMustBeDreaming.mp3",
+    [_zp_ACHIEVEMENT_TYPE.MULTI] = _zp_const_audioFileBaseFolder .. "Duke\\" .. "Nasty.mp3",
+    [_zp_ACHIEVEMENT_TYPE.PREP4BATTLE] = _zp_const_audioFileBaseFolder .. "Duke\\" .. "ItsAssKickingTime.mp3",
+    [_zp_ACHIEVEMENT_TYPE.RAMPAGE] = _zp_const_audioFileBaseFolder .. "Duke\\" .. "ItsAllInTheReflexes.mp3",
+    [_zp_ACHIEVEMENT_TYPE.ULTRA] = _zp_const_audioFileBaseFolder .. "Duke\\" .. "RestInPieces.mp3",
+    [_zp_ACHIEVEMENT_TYPE.UNSTOPPABLE] = _zp_const_audioFileBaseFolder .. "Duke\\" .. "PHDInKickingAss.mp3",
+    [_zp_ACHIEVEMENT_TYPE.WICKED] = _zp_const_audioFileBaseFolder .. "Duke\\" .. "DamnImGood.mp3"
+}
+
+local _zp_table_achievementAudioFilePath_UT = {
     [_zp_ACHIEVEMENT_TYPE.DEAD] = _zp_const_audioFileBaseFolder .. "pacmandies.mp3",
     [_zp_ACHIEVEMENT_TYPE.DOMINATING] = _zp_const_audioFileBaseFolder .. "dominating.mp3",
     [_zp_ACHIEVEMENT_TYPE.DOUBLE] = _zp_const_audioFileBaseFolder .. "doublekill.mp3",
     [_zp_ACHIEVEMENT_TYPE.FIRSTBLOOD] = _zp_const_audioFileBaseFolder .. "firstblood.mp3",
-    [_zp_ACHIEVEMENT_TYPE.FLAWLESS] = _zp_const_audioFileBaseFolder .. "flawlessvictory.mp3",
     [_zp_ACHIEVEMENT_TYPE.GODLIKE] = _zp_const_audioFileBaseFolder .. "godlike.mp3",
     [_zp_ACHIEVEMENT_TYPE.HOLYSHIT] = _zp_const_audioFileBaseFolder .. "holyshit.mp3",
     [_zp_ACHIEVEMENT_TYPE.KILLSPREE] = _zp_const_audioFileBaseFolder .. "killingspree.mp3",
@@ -51,9 +73,7 @@ local _zp_table_achievementAudioFilePath = {
     [_zp_ACHIEVEMENT_TYPE.MULTI] = _zp_const_audioFileBaseFolder .. "multikill.mp3",
     [_zp_ACHIEVEMENT_TYPE.PREP4BATTLE] = _zp_const_audioFileBaseFolder .. "prepareforbattle.mp3",
     [_zp_ACHIEVEMENT_TYPE.RAMPAGE] = _zp_const_audioFileBaseFolder .. "rampage.mp3",
-    [_zp_ACHIEVEMENT_TYPE.TRIPPLE] = _zp_const_audioFileBaseFolder .. "triplekill.mp3",
     [_zp_ACHIEVEMENT_TYPE.ULTRA] = _zp_const_audioFileBaseFolder .. "ultrakill.mp3",
-    [_zp_ACHIEVEMENT_TYPE.UNREAL] = _zp_const_audioFileBaseFolder .. "unreal.mp3",
     [_zp_ACHIEVEMENT_TYPE.UNSTOPPABLE] = _zp_const_audioFileBaseFolder .. "unstoppable.mp3",
     [_zp_ACHIEVEMENT_TYPE.WICKED] = _zp_const_audioFileBaseFolder .. "wickedsick.mp3"
 }
@@ -64,7 +84,6 @@ local _zp_table_achievementDisplayText = {
     [_zp_ACHIEVEMENT_TYPE.DOMINATING] = "DOMINATING!",
     [_zp_ACHIEVEMENT_TYPE.DOUBLE] = "DOUBLE KILL!",
     [_zp_ACHIEVEMENT_TYPE.FIRSTBLOOD] = "FIRST BLOOD!",
-    [_zp_ACHIEVEMENT_TYPE.FLAWLESS] = "FLAWLESS VICTORY!",
     [_zp_ACHIEVEMENT_TYPE.GODLIKE] = "GODLIKE!",
     [_zp_ACHIEVEMENT_TYPE.HOLYSHIT] = "**** HOLY SHIT! ****",
     [_zp_ACHIEVEMENT_TYPE.KILLSPREE] = "KILLING SPREE!",
@@ -74,9 +93,7 @@ local _zp_table_achievementDisplayText = {
     [_zp_ACHIEVEMENT_TYPE.MULTI] = "MULTI KILL!",
     [_zp_ACHIEVEMENT_TYPE.PREP4BATTLE] = "PREPARE FOR BATTLE!",
     [_zp_ACHIEVEMENT_TYPE.RAMPAGE] = "RAMPAGE!",
-    [_zp_ACHIEVEMENT_TYPE.TRIPPLE] = "TRIPLE KILL!",
     [_zp_ACHIEVEMENT_TYPE.ULTRA] = "ULTRA KILL!",
-    [_zp_ACHIEVEMENT_TYPE.UNREAL] = "UNREAL!",
     [_zp_ACHIEVEMENT_TYPE.UNSTOPPABLE] = "UNSTOPPABLE!",
     [_zp_ACHIEVEMENT_TYPE.WICKED] = "WICKED SICK!"
 }
@@ -85,12 +102,39 @@ local _zp_table_achievementDisplayText = {
 local function _zpValidateSavedVariables()
     if not _zp_PlayerConfigurableSettingsTable then
         _zp_PlayerConfigurableSettingsTable = {
-            isProcessPlayerKillsOnly = true
+            isProcessPlayerKillsOnly = true,
+            genreType = _zp_ACHIEVEMENT_GENRE_TYPE.UT
         }
     end
 
     if _zp_PlayerConfigurableSettingsTable.isProcessPlayerKillsOnly == nil then
-        _zp_PlayerConfigurableSettingsTable.isProcessPlayerKillsOnly = true
+        _zp_PlayerConfigurableSettingsTable.genreType = true
+    end
+
+    if _zp_PlayerConfigurableSettingsTable.genreType == nil then
+        _zp_PlayerConfigurableSettingsTable.genreType = _zp_ACHIEVEMENT_GENRE_TYPE.UT
+    end
+
+    if _zp_PlayerConfigurableSettingsTable.genreType ~= _zp_ACHIEVEMENT_GENRE_TYPE.UT 
+        and _zp_PlayerConfigurableSettingsTable.genreType ~= _zp_ACHIEVEMENT_GENRE_TYPE.DUKE then
+        
+        _zp_PlayerConfigurableSettingsTable.genreType = _zp_ACHIEVEMENT_GENRE_TYPE.UT
+    end
+
+    if _zp_PlayerConfigurableSettingsTable.bragSay == nil then
+        _zp_PlayerConfigurableSettingsTable.bragSay = false
+    end
+
+    if _zp_PlayerConfigurableSettingsTable.bragParty == nil then
+        _zp_PlayerConfigurableSettingsTable.bragParty = false
+    end
+
+    if _zp_PlayerConfigurableSettingsTable.bragRaid == nil then
+        _zp_PlayerConfigurableSettingsTable.bragRaid = false
+    end
+
+    if _zp_PlayerConfigurableSettingsTable.bragBG == nil then
+        _zp_PlayerConfigurableSettingsTable.bragBG = false
     end
 end
 
@@ -174,6 +218,35 @@ local function _zpSendMessageToConsole(message)
     end
 end
 
+-- A function used to send our brag messages
+local function _zpSendMessageToChat(message)
+
+    local inBG = UnitInBattleground("player")
+    local inRaid = UnitInRaid("player")
+    local inParty = UnitInParty("player")
+    local chatType = "EMOTE"
+
+    if inBG and _zp_PlayerConfigurableSettingsTable.bragBG then
+        chatType = "INSTANCE_CHAT"
+        message = "I got a " .. message
+        SendChatMessage(message, chatType)
+    elseif inRaid and _zp_PlayerConfigurableSettingsTable.bragRaid then
+        chatType = "RAID"
+        message = "I got a " .. message
+        SendChatMessage(message, chatType)
+    elseif inParty and _zp_PlayerConfigurableSettingsTable.bragRaid then
+        chatType = "PARTY"
+        message = "I got a " .. message
+        SendChatMessage(message, chatType)
+    elseif _zp_PlayerConfigurableSettingsTable.bragSay then
+        chatType = "EMOTE"
+        message = "got a " .. message
+        SendChatMessage(message, chatType)
+    end
+    
+
+end
+
 -- A function to Reset player kill stats. Called when a player enters a new world zone/instance, or when a player dies.
 local function _zpResetPlayer()
     _zp_playerGUID = UnitGUID("player")
@@ -222,10 +295,12 @@ local function _zpDisplayMessageToConsoleAndScreen(achievementType)
             achievementType == _zp_ACHIEVEMENT_TYPE.MEGA or achievementType == _zp_ACHIEVEMENT_TYPE.MONSTER or
             achievementType == _zp_ACHIEVEMENT_TYPE.ULTRA or achievementType == _zp_ACHIEVEMENT_TYPE.LUDICROUS or
             achievementType == _zp_ACHIEVEMENT_TYPE.HOLYSHIT then
-            _zpSendMessageToConsole("Multi kill: " .. _zp_numberOfConsectutiveMultiKills+1 .. " kills")
+            _zpSendMessageToConsole("Multi Kill: " .. _zp_numberOfConsectutiveMultiKills+1 .. " kills")
+            _zpSendMessageToChat("Multi Kill: " .. _zp_numberOfConsectutiveMultiKills+1 .. " kills")
         else
             -- Display killing sprees to the console
-            _zpSendMessageToConsole("Killing spree: " .. _zp_numberOfPlayerKillsBeforeDeath .. " kills")
+            _zpSendMessageToConsole("Killing Spree: " .. _zp_numberOfPlayerKillsBeforeDeath .. " kills")
+            --_zpSendMessageToChat("Killing spree: " .. _zp_numberOfPlayerKillsBeforeDeath .. " kills")
         end
     end
 
@@ -237,14 +312,6 @@ end
 local function _zpResetFrames()
     _zp_frame_event:Hide()
     _zpSendMessageToScreen("")
-end
-
--- Function to test an achievment announcement
-local function _zpProcessTestAchievement(achievmentType)
-    _zpDisplayMessageToConsoleAndScreen(achievmentType)
-
-    local willPlay, soundHandle = PlaySoundFile(_zp_table_achievementAudioFilePath[achievmentType], "SFX")
-    if willPlay == false then _zpSendMessageToConsole("Error: Unable to play audio file '" .. _zp_table_achievementAudioFilePath[achievmentType] .. "'") end
 end
 
 -- This function processes our achievment queue table
@@ -260,8 +327,17 @@ local function _zpProcessAchievementQueue()
 
     _zpDisplayMessageToConsoleAndScreen(achievmentType)
 
-    local willPlay, soundHandle = PlaySoundFile(_zp_table_achievementAudioFilePath[achievmentType], "SFX")
-    if willPlay == false then _zpSendMessageToConsole("Error: Unable to play audio file '" .. _zp_table_achievementAudioFilePath[achievmentType] .. "'") end
+    local audioFile
+
+    if _zp_PlayerConfigurableSettingsTable.genreType == _zp_ACHIEVEMENT_GENRE_TYPE.DUKE then
+        audioFile = _zp_table_achievementAudioFilePath_DUKE[achievmentType]
+    else
+        audioFile = _zp_table_achievementAudioFilePath_UT[achievmentType]
+    end
+
+    local willPlay = PlaySoundFile(audioFile, "SFX")
+
+    if willPlay == false then _zpSendMessageToConsole("Error: Unable to play audio file '" .. audioFile .. "'") end
 
     if _zpTablelength(_zp_table_achievmentQueue) > 0 then
         C_Timer.After(_zp_const_waitForAchievmentToCompleteInSeconds, function() _zpProcessAchievementQueue() end)
@@ -284,74 +360,159 @@ local function _zpAddPlayerConfigSettingsToAddonUI()
 
     if _zp_isAddonSettingsFrameAdded then return end
 
-    local _zp_panel = CreateFrame( "Frame", "_zpAddonPanel", UIParent);
+    local _zp_panel = CreateFrame( "Frame", "_zp_panel", UIParent);
      -- Register in the Interface Addon Options GUI
     -- Set the name for the Category for the Options Panel
     _zp_panel.name = "ZPownage";
 
-    local _zp_panel_title_fontStringMessageBackground = _zp_panel:CreateFontString(_zp_panel, "OVERLAY", "GameFontNormal")
+    local _zp_panel_title_fontStringMessageBackground = _zp_panel:CreateFontString("_zp_panel_title_fontStringMessageBackground", "OVERLAY", "GameFontNormal")
     _zp_panel_title_fontStringMessageBackground:SetTextHeight(36)
     _zp_panel_title_fontStringMessageBackground:SetTextColor(0, 0, 0, 1)
     _zp_panel_title_fontStringMessageBackground:SetPoint("TOP", 3, -17)
     _zp_panel_title_fontStringMessageBackground:SetText("ZPownage")
 
-    local _zp_panel_title_fontStringMessageBackground2 = _zp_panel:CreateFontString(_zp_panel, "OVERLAY", "GameFontNormal")
+    local _zp_panel_title_fontStringMessageBackground2 = _zp_panel:CreateFontString("_zp_panel_title_fontStringMessageBackground2", "OVERLAY", "GameFontNormal")
     _zp_panel_title_fontStringMessageBackground2:SetTextHeight(36)
     _zp_panel_title_fontStringMessageBackground2:SetTextColor(0, 0, 0, 1)
     _zp_panel_title_fontStringMessageBackground2:SetPoint("TOP", 3, -23)
     _zp_panel_title_fontStringMessageBackground2:SetText("ZPownage")
 
-    local _zp_panel_title_fontStringMessageBackground3 = _zp_panel:CreateFontString(_zp_panel, "OVERLAY", "GameFontNormal")
+    local _zp_panel_title_fontStringMessageBackground3 = _zp_panel:CreateFontString("_zp_panel_title_fontStringMessageBackground3", "OVERLAY", "GameFontNormal")
     _zp_panel_title_fontStringMessageBackground3:SetTextHeight(36)
     _zp_panel_title_fontStringMessageBackground3:SetTextColor(0, 0, 0, 1)
     _zp_panel_title_fontStringMessageBackground3:SetPoint("TOP", -3, -17)
     _zp_panel_title_fontStringMessageBackground3:SetText("ZPownage")
 
-    local _zp_panel_title_fontStringMessageBackground4 = _zp_panel:CreateFontString(_zp_panel, "OVERLAY", "GameFontNormal")
+    local _zp_panel_title_fontStringMessageBackground4 = _zp_panel:CreateFontString("_zp_panel_title_fontStringMessageBackground4", "OVERLAY", "GameFontNormal")
     _zp_panel_title_fontStringMessageBackground4:SetTextHeight(36)
     _zp_panel_title_fontStringMessageBackground4:SetTextColor(0, 0, 0, 1)
     _zp_panel_title_fontStringMessageBackground4:SetPoint("TOP", -3, -23)
     _zp_panel_title_fontStringMessageBackground4:SetText("ZPownage")
 
-    local _zp_panel_title_fontStringMessage = _zp_panel:CreateFontString(_zp_panel, "OVERLAY", "GameFontNormal")
+    local _zp_panel_title_fontStringMessage = _zp_panel:CreateFontString("_zp_panel_title_fontStringMessage", "OVERLAY", "GameFontNormal")
     _zp_panel_title_fontStringMessage:SetTextHeight(36)
     _zp_panel_title_fontStringMessage:SetTextColor(0, 1, 0, 1)
     _zp_panel_title_fontStringMessage:SetPoint("TOP", 0, -20)
     _zp_panel_title_fontStringMessage:SetText("ZPownage")
 
-    local _zp_myCheckButtonPvpOnly = CreateFrame("CheckButton", "_zpPvpOnlyCheckBox", _zp_panel, "UICheckButtonTemplate")
-    _zp_myCheckButtonPvpOnly:SetPoint("TOPLEFT", 10, -40)
+    local _zp_myCheckButtonPvpOnly = CreateFrame("CheckButton", "_zp_myCheckButtonPvpOnly", _zp_panel, "UICheckButtonTemplate")
+    _zp_myCheckButtonPvpOnly:SetPoint("TOPLEFT", 10, -50)
     _zp_myCheckButtonPvpOnly:SetChecked(_zp_PlayerConfigurableSettingsTable.isProcessPlayerKillsOnly)
-    _G[_zp_myCheckButtonPvpOnly:GetName().."Text"]:SetText("Player Only Kill Mode")
+    _G[_zp_myCheckButtonPvpOnly:GetName().."Text"]:SetText("Enable Player Only Kill Mode")
     _zp_myCheckButtonPvpOnly:SetScript("OnClick", function(self, button, down)
         _zpTogglePlayerOnlyKillFlag()
     end)
 
-    local _zp_myButtonReset = CreateFrame("Button", "_zpResetButton", _zp_panel, "OptionsButtonTemplate")
-    _zp_myButtonReset:SetPoint("TOPLEFT", 10, -80)
+    local _zp_myButtonReset = CreateFrame("Button", "_zp_myButtonReset", _zp_panel, "OptionsButtonTemplate")
+    _zp_myButtonReset:SetPoint("TOPLEFT", 10, -90)
     _zp_myButtonReset:SetText("Reset Kills")
     _zp_myButtonReset:SetScript("OnClick", function(self, button, down) _zpResetPlayer() end)
 
-    local _zp_myButtonTest = CreateFrame("Button", "_zpTestButton", _zp_panel, "OptionsButtonTemplate")
-    _zp_myButtonTest:SetPoint("TOPLEFT", 120, -80)
+    local _zp_myButtonTest = CreateFrame("Button", "_zp_myButtonTest", _zp_panel, "OptionsButtonTemplate")
+    _zp_myButtonTest:SetPoint("TOPLEFT", 120, -90)
     _zp_myButtonTest:SetText("Test")
-    _zp_myButtonTest:SetScript("OnClick", function(self, button, down) _zpProcessTestAchievement(_zp_ACHIEVEMENT_TYPE.DOUBLE) end)
+    _zp_myButtonTest:SetScript("OnClick", function(self, button, down) _zpAddAchievementToQueue(_zp_ACHIEVEMENT_TYPE.DOUBLE) end)
 
-    local _zp_panel_usage_fontStringLineUsage = _zp_panel:CreateFontString(_zp_panel, "OVERLAY", "GameTooltipText")
-    _zp_panel_usage_fontStringLineUsage:SetPoint("BOTTOMLEFT", 10, 85)
-    _zp_panel_usage_fontStringLineUsage:SetText("Available Slash Commands:")
-    local _zp_panel_usage_fontStringLineReset = _zp_panel:CreateFontString(_zp_panel, "OVERLAY", "GameTooltipText")
-    _zp_panel_usage_fontStringLineReset:SetPoint("BOTTOMLEFT", 10, 65)
-    _zp_panel_usage_fontStringLineReset:SetText('/zp reset  "Reset unit kills"')
-    local _zp_panel_usage_fontStringLinePvp = _zp_panel:CreateFontString(_zp_panel, "OVERLAY", "GameTooltipText")
-    _zp_panel_usage_fontStringLinePvp:SetPoint("BOTTOMLEFT", 10, 50)
-    _zp_panel_usage_fontStringLinePvp:SetText('/zp pvp      "Toggle player only kill mode" - If disabled, it tracks all kills made by the player')
-    local _zp_panel_usage_fontStringLineTest = _zp_panel:CreateFontString(_zp_panel, "OVERLAY", "GameTooltipText")
-    _zp_panel_usage_fontStringLineTest:SetPoint("BOTTOMLEFT", 10, 35)
-    _zp_panel_usage_fontStringLineTest:SetText('/zp test    "Test achievment display and audio playback"')
-    local _zp_panel_usage_fontStringLineUi = _zp_panel:CreateFontString(_zp_panel, "OVERLAY", "GameTooltipText")
-    _zp_panel_usage_fontStringLineUi:SetPoint("BOTTOMLEFT", 10, 20)
-    _zp_panel_usage_fontStringLineUi:SetText('/zp           "Show addon settings UI and usage"')
+    local _zp_panel_fontString_audioGenreLabel = _zp_panel:CreateFontString("_zp_panel_fontString_audioGenreLabel", "OVERLAY", "GameTooltipText")
+    _zp_panel_fontString_audioGenreLabel:SetPoint("TOPLEFT", 325, -94)
+    if _zp_PlayerConfigurableSettingsTable.genreType == _zp_ACHIEVEMENT_GENRE_TYPE.UT then
+        _zp_panel_fontString_audioGenreLabel:SetText("Unreal Tournament")
+    elseif _zp_PlayerConfigurableSettingsTable.genreType == _zp_ACHIEVEMENT_GENRE_TYPE.DUKE then
+        _zp_panel_fontString_audioGenreLabel:SetText("Duke Nukem")
+    end
+
+    local _zp_myButtonSwitchGenre = CreateFrame("Button", "_zp_myButtonSwitchGenre", _zp_panel, "OptionsButtonTemplate")
+    _zp_myButtonSwitchGenre:SetPoint("TOPLEFT", 230, -90)
+    _zp_myButtonSwitchGenre:SetText("Switch Audio")
+    _zp_myButtonSwitchGenre:SetScript("OnClick", function(self, button, down)
+        if _zp_PlayerConfigurableSettingsTable.genreType == _zp_ACHIEVEMENT_GENRE_TYPE.UT then
+            _zp_PlayerConfigurableSettingsTable.genreType = _zp_ACHIEVEMENT_GENRE_TYPE.DUKE
+            _zp_panel_fontString_audioGenreLabel:SetText("Duke Nukem")
+        else
+            _zp_PlayerConfigurableSettingsTable.genreType = _zp_ACHIEVEMENT_GENRE_TYPE.UT
+            _zp_panel_fontString_audioGenreLabel:SetText("Unreal Tournament")
+        end
+        _zpAddAchievementToQueue(_zp_ACHIEVEMENT_TYPE.KILLSPREE)
+    end)
+
+    local _zp_frame_bragpanel = CreateFrame( "Frame", "_zp_frame_bragpanel", _zp_panel, "OptionsBoxTemplate");
+    _zp_frame_bragpanel:SetPoint("TOPLEFT", 10, -140)
+    _zp_frame_bragpanel:SetSize(475, 40)
+
+    local _zp_panel_bragpanel_title_fontString = _zp_frame_bragpanel:CreateFontString("_zp_panel_bragpanel_title_fontString", "OVERLAY", "GameFontNormal")
+    _zp_panel_bragpanel_title_fontString:SetPoint("TOPLEFT", 2, 14)
+    _zp_panel_bragpanel_title_fontString:SetText("Brag Channels: (Multi-Kills only)")
+
+    local _zp_myCheckButtonBragSay = CreateFrame("CheckButton", "_zp_myCheckButtonBragSay", _zp_frame_bragpanel, "UICheckButtonTemplate")
+    _zp_myCheckButtonBragSay:SetPoint("TOPLEFT", 10, -4)
+    _zp_myCheckButtonBragSay:SetChecked(_zp_PlayerConfigurableSettingsTable.bragSay)
+    _G[_zp_myCheckButtonBragSay:GetName().."Text"]:SetText("Emote")
+    _zp_myCheckButtonBragSay:SetScript("OnClick", function(self, button, down) 
+        _zp_myCheckButtonBragSay:GetChecked()
+        _zp_PlayerConfigurableSettingsTable.bragSay = _zp_myCheckButtonBragSay:GetChecked()
+    end)
+
+    local _zp_myCheckButtonBragParty = CreateFrame("CheckButton", "_zp_myCheckButtonBragParty", _zp_frame_bragpanel, "UICheckButtonTemplate")
+    _zp_myCheckButtonBragParty:SetPoint("TOPLEFT", 110, -4)
+    _zp_myCheckButtonBragParty:SetChecked(_zp_PlayerConfigurableSettingsTable.bragParty)
+    _G[_zp_myCheckButtonBragParty:GetName().."Text"]:SetText("Party")
+    _zp_myCheckButtonBragParty:SetScript("OnClick", function(self, button, down) 
+        _zp_PlayerConfigurableSettingsTable.bragParty = _zp_myCheckButtonBragParty:GetChecked()
+    end)
+
+    local _zp_myCheckButtonBragRaid = CreateFrame("CheckButton", "_zp_myCheckButtonBragRaid", _zp_frame_bragpanel, "UICheckButtonTemplate")
+    _zp_myCheckButtonBragRaid:SetPoint("TOPLEFT", 210, -4)
+    _zp_myCheckButtonBragRaid:SetChecked(_zp_PlayerConfigurableSettingsTable.bragRaid)
+    _G[_zp_myCheckButtonBragRaid:GetName().."Text"]:SetText("Raid")
+    _zp_myCheckButtonBragRaid:SetScript("OnClick", function(self, button, down) 
+        _zp_PlayerConfigurableSettingsTable.bragRaid = _zp_myCheckButtonBragRaid:GetChecked()
+    end)
+
+    local _zp_myCheckButtonBragBG = CreateFrame("CheckButton", "_zp_myCheckButtonBragBG", _zp_frame_bragpanel, "UICheckButtonTemplate")
+    _zp_myCheckButtonBragBG:SetPoint("TOPLEFT", 310, -4)
+    _zp_myCheckButtonBragBG:SetChecked(_zp_PlayerConfigurableSettingsTable.bragBG)
+    _G[_zp_myCheckButtonBragBG:GetName().."Text"]:SetText("Battleground")
+    _zp_myCheckButtonBragBG:SetScript("OnClick", function(self, button, down) 
+        _zp_PlayerConfigurableSettingsTable.bragBG = _zp_myCheckButtonBragBG:GetChecked()
+    end)
+
+    local _zp_frame_usage_panel = CreateFrame( "Frame", "_zp_frame_usage_panel", _zp_panel, "OptionsBoxTemplate");
+    _zp_frame_usage_panel:SetPoint("TOPLEFT", 10, -205)
+    _zp_frame_usage_panel:SetSize(600, 80)
+
+    local _zp_frame_usage_panel_rightcolumn = CreateFrame( "Frame", "_zp_frame_usage_panel_rightcolumn", _zp_frame_usage_panel);
+    _zp_frame_usage_panel_rightcolumn:SetPoint("TOPLEFT", 80, 0)
+    _zp_frame_usage_panel_rightcolumn:SetSize(520, 80)
+
+    local _zp_panel_usagepanel_title_fontString = _zp_frame_usage_panel:CreateFontString("_zp_panel_usagepanel_title_fontString", "OVERLAY", "GameFontNormal")
+    _zp_panel_usagepanel_title_fontString:SetPoint("TOPLEFT", 2, 14)
+    _zp_panel_usagepanel_title_fontString:SetText("Slash Commands:")
+
+    local _zp_panel_usage_fontStringLineReset = _zp_frame_usage_panel:CreateFontString("_zp_panel_usage_fontStringLineReset", "OVERLAY", "GameFontNormal")
+    _zp_panel_usage_fontStringLineReset:SetPoint("TOPLEFT", 10, -10)
+    _zp_panel_usage_fontStringLineReset:SetText('/zp reset')
+    local _zp_panel_usage_fontStringLinePvp = _zp_frame_usage_panel:CreateFontString("_zp_panel_usage_fontStringLinePvp", "OVERLAY", "GameFontNormal")
+    _zp_panel_usage_fontStringLinePvp:SetPoint("TOPLEFT", 10, -25)
+    _zp_panel_usage_fontStringLinePvp:SetText('/zp pvp')
+    local _zp_panel_usage_fontStringLineTest = _zp_frame_usage_panel:CreateFontString("_zp_panel_usage_fontStringLineTest", "OVERLAY", "GameFontNormal")
+    _zp_panel_usage_fontStringLineTest:SetPoint("TOPLEFT", 10, -40)
+    _zp_panel_usage_fontStringLineTest:SetText('/zp test')
+    local _zp_panel_usage_fontStringLineUi = _zp_frame_usage_panel:CreateFontString("_zp_panel_usage_fontStringLineUi", "OVERLAY", "GameFontNormal")
+    _zp_panel_usage_fontStringLineUi:SetPoint("TOPLEFT", 10, -55)
+    _zp_panel_usage_fontStringLineUi:SetText('/zp')
+
+    local _zp_panel_usage_fontStringLineResetDetails = _zp_frame_usage_panel_rightcolumn:CreateFontString("_zp_panel_usage_fontStringLineResetDetails", "OVERLAY", "GameTooltipText")
+    _zp_panel_usage_fontStringLineResetDetails:SetPoint("TOPLEFT", 0, -10)
+    _zp_panel_usage_fontStringLineResetDetails:SetText('"Reset unit kills"')
+    local _zp_panel_usage_fontStringLinePvpDetails = _zp_frame_usage_panel_rightcolumn:CreateFontString("_zp_panel_usage_fontStringLinePvpDetails", "OVERLAY", "GameTooltipText")
+    _zp_panel_usage_fontStringLinePvpDetails:SetPoint("TOPLEFT", 0, -25)
+    _zp_panel_usage_fontStringLinePvpDetails:SetText('"Toggle player only kill mode. If disabled, it tracks all kills made by the player"')
+    local _zp_panel_usage_fontStringLineTestDetails = _zp_frame_usage_panel_rightcolumn:CreateFontString("_zp_panel_usage_fontStringLineTestDetails", "OVERLAY", "GameTooltipText")
+    _zp_panel_usage_fontStringLineTestDetails:SetPoint("TOPLEFT", 0, -40)
+    _zp_panel_usage_fontStringLineTestDetails:SetText('"Test achievment display and audio playback"')
+    local _zp_panel_usage_fontStringLineUiDetails = _zp_frame_usage_panel_rightcolumn:CreateFontString("_zp_panel_usage_fontStringLineUiDetails", "OVERLAY", "GameTooltipText")
+    _zp_panel_usage_fontStringLineUiDetails:SetPoint("TOPLEFT", 0, -55)
+    _zp_panel_usage_fontStringLineUiDetails:SetText('"Show addon settings UI and usage"')
 
     -- Add the panel to the Blizzard Interface/Addons UI
     InterfaceOptions_AddCategory(_zp_panel);
@@ -622,7 +783,7 @@ SlashCmdList["ZPOWNAGE"] = function(msg)
     elseif msg and msg == "pvp" then
         _zpTogglePlayerOnlyKillFlag()
     elseif msg and msg == "test" then
-        _zpProcessTestAchievement(_zp_ACHIEVEMENT_TYPE.DOUBLE)
+        _zpAddAchievementToQueue(_zp_ACHIEVEMENT_TYPE.DOUBLE)
     else
         _zpSendUsageToConsole()
         -- Open the WOW Interface/Addon UI
