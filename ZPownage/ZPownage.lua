@@ -1,14 +1,12 @@
 ---- Main config settings
 -- The max number of seconds to display a kill achievement on the screen
 local _zp_const_waitForAchievmentToCompleteInSeconds = 3.0
--- The base folder for our audio files
-local _zp_const_audioFileBaseFolder = "Interface\\AddOns\\ZPownage\\Audio\\";
 
 ---- Runtime variables
 -- The player GUI used to track kills from the combat logs
 local _zp_playerGUID
 -- A flag used to track debug logging
-local _zp_isDebugMode = false;
+local _zp_isDebugMode = false
 -- The number of consecutive kills with a death. Is reset after player death.
 local _zp_numberOfPlayerKillsBeforeDeath = 0
 -- The number of consecutive kills to be considerd for multi kill processing.
@@ -21,264 +19,27 @@ local _zp_timeElapsedInSecondsSinceLastKill = 0
 -- an existing one is still being displayed.
 local _zp_isAchievementBeingDisplayed = false;
 
-local _zp_isAddonSettingsFrameAdded = false;
-
--- A table used to to keep track of units the player has attacked
-local _zp_table_inCombatWith = {}
--- A table used as an achievement queue for processing. This guarentees we process achievments in the order they occured.
-local _zp_table_achievmentQueue = {}
-
--- Our achievements enum table, or a table used like an enum. The is a list of available player achievements
-local _zp_ACHIEVEMENT_TYPE = {
-    DEAD = 1, DOMINATING = 2, DOUBLE = 3, FIRSTBLOOD = 4, GODLIKE = 5, HOLYSHIT = 6, KILLSPREE = 7, LUDICROUS = 8,
-    MEGA = 9, MONSTER = 10, MULTI = 11, PREP4BATTLE = 12, RAMPAGE = 13, ULTRA = 14, UNSTOPPABLE = 15,
-    WICKED = 16
-}
-
-local _zp_ACHIEVEMENT_GENRE_TYPE = {
-    UT = 1, DUKE = 2
-}
-
--- A table of audio file path strings
-local _zp_table_achievementAudioFilePath_DUKE = {
-    [_zp_ACHIEVEMENT_TYPE.DEAD] = _zp_const_audioFileBaseFolder .. "Duke\\" .. "DukeDeath.mp3",
-    [_zp_ACHIEVEMENT_TYPE.DOMINATING] = _zp_const_audioFileBaseFolder .. "Duke\\" .. "ThatsWhatICallReducingHeadCount.mp3",
-    [_zp_ACHIEVEMENT_TYPE.DOUBLE] = _zp_const_audioFileBaseFolder .. "Duke\\" .. "DoubleYourPleasure.mp3",
-    [_zp_ACHIEVEMENT_TYPE.FIRSTBLOOD] = _zp_const_audioFileBaseFolder .. "Duke\\" .. "Finally.mp3",
-    [_zp_ACHIEVEMENT_TYPE.GODLIKE] = _zp_const_audioFileBaseFolder .. "Duke\\" .. "IveGotBallsOfSteel.mp3",
-    [_zp_ACHIEVEMENT_TYPE.HOLYSHIT] = _zp_const_audioFileBaseFolder .. "Duke\\" .. "HolyShit.mp3",
-    [_zp_ACHIEVEMENT_TYPE.KILLSPREE] = _zp_const_audioFileBaseFolder .. "Duke\\" .. "ComeGetSome.mp3",
-    [_zp_ACHIEVEMENT_TYPE.LUDICROUS] = _zp_const_audioFileBaseFolder .. "Duke\\" .. "LetGodSortThemOut.mp3",
-    [_zp_ACHIEVEMENT_TYPE.MEGA] = _zp_const_audioFileBaseFolder .. "Duke\\" .. "WhatAMess.mp3",
-    [_zp_ACHIEVEMENT_TYPE.MONSTER] = _zp_const_audioFileBaseFolder .. "Duke\\" .. "IMustBeDreaming.mp3",
-    [_zp_ACHIEVEMENT_TYPE.MULTI] = _zp_const_audioFileBaseFolder .. "Duke\\" .. "Nasty.mp3",
-    [_zp_ACHIEVEMENT_TYPE.PREP4BATTLE] = _zp_const_audioFileBaseFolder .. "Duke\\" .. "ItsAssKickingTime.mp3",
-    [_zp_ACHIEVEMENT_TYPE.RAMPAGE] = _zp_const_audioFileBaseFolder .. "Duke\\" .. "ItsAllInTheReflexes.mp3",
-    [_zp_ACHIEVEMENT_TYPE.ULTRA] = _zp_const_audioFileBaseFolder .. "Duke\\" .. "RestInPieces.mp3",
-    [_zp_ACHIEVEMENT_TYPE.UNSTOPPABLE] = _zp_const_audioFileBaseFolder .. "Duke\\" .. "PHDInKickingAss.mp3",
-    [_zp_ACHIEVEMENT_TYPE.WICKED] = _zp_const_audioFileBaseFolder .. "Duke\\" .. "DamnImGood.mp3"
-}
-
-local _zp_table_achievementAudioFilePath_UT = {
-    [_zp_ACHIEVEMENT_TYPE.DEAD] = _zp_const_audioFileBaseFolder .. "pacmandies.mp3",
-    [_zp_ACHIEVEMENT_TYPE.DOMINATING] = _zp_const_audioFileBaseFolder .. "dominating.mp3",
-    [_zp_ACHIEVEMENT_TYPE.DOUBLE] = _zp_const_audioFileBaseFolder .. "doublekill.mp3",
-    [_zp_ACHIEVEMENT_TYPE.FIRSTBLOOD] = _zp_const_audioFileBaseFolder .. "firstblood.mp3",
-    [_zp_ACHIEVEMENT_TYPE.GODLIKE] = _zp_const_audioFileBaseFolder .. "godlike.mp3",
-    [_zp_ACHIEVEMENT_TYPE.HOLYSHIT] = _zp_const_audioFileBaseFolder .. "holyshit.mp3",
-    [_zp_ACHIEVEMENT_TYPE.KILLSPREE] = _zp_const_audioFileBaseFolder .. "killingspree.mp3",
-    [_zp_ACHIEVEMENT_TYPE.LUDICROUS] = _zp_const_audioFileBaseFolder .. "ludicrouskill.mp3",
-    [_zp_ACHIEVEMENT_TYPE.MEGA] = _zp_const_audioFileBaseFolder .. "megakill.mp3",
-    [_zp_ACHIEVEMENT_TYPE.MONSTER] = _zp_const_audioFileBaseFolder .. "monsterkill.mp3",
-    [_zp_ACHIEVEMENT_TYPE.MULTI] = _zp_const_audioFileBaseFolder .. "multikill.mp3",
-    [_zp_ACHIEVEMENT_TYPE.PREP4BATTLE] = _zp_const_audioFileBaseFolder .. "prepareforbattle.mp3",
-    [_zp_ACHIEVEMENT_TYPE.RAMPAGE] = _zp_const_audioFileBaseFolder .. "rampage.mp3",
-    [_zp_ACHIEVEMENT_TYPE.ULTRA] = _zp_const_audioFileBaseFolder .. "ultrakill.mp3",
-    [_zp_ACHIEVEMENT_TYPE.UNSTOPPABLE] = _zp_const_audioFileBaseFolder .. "unstoppable.mp3",
-    [_zp_ACHIEVEMENT_TYPE.WICKED] = _zp_const_audioFileBaseFolder .. "wickedsick.mp3"
-}
-
--- A table of text strings to display for player achievements.
-local _zp_table_achievementDisplayText = {
-    [_zp_ACHIEVEMENT_TYPE.DEAD] = "YOU'VE BEEN POWNED!",
-    [_zp_ACHIEVEMENT_TYPE.DOMINATING] = "DOMINATING!",
-    [_zp_ACHIEVEMENT_TYPE.DOUBLE] = "DOUBLE KILL!",
-    [_zp_ACHIEVEMENT_TYPE.FIRSTBLOOD] = "FIRST BLOOD!",
-    [_zp_ACHIEVEMENT_TYPE.GODLIKE] = "GODLIKE!",
-    [_zp_ACHIEVEMENT_TYPE.HOLYSHIT] = "**** HOLY SHIT! ****",
-    [_zp_ACHIEVEMENT_TYPE.KILLSPREE] = "KILLING SPREE!",
-    [_zp_ACHIEVEMENT_TYPE.LUDICROUS] = "LUDICROUS KILL!",
-    [_zp_ACHIEVEMENT_TYPE.MEGA] = "MEGA KILL!",
-    [_zp_ACHIEVEMENT_TYPE.MONSTER] = "MONSTER KILL!",
-    [_zp_ACHIEVEMENT_TYPE.MULTI] = "MULTI KILL!",
-    [_zp_ACHIEVEMENT_TYPE.PREP4BATTLE] = "PREPARE FOR BATTLE!",
-    [_zp_ACHIEVEMENT_TYPE.RAMPAGE] = "RAMPAGE!",
-    [_zp_ACHIEVEMENT_TYPE.ULTRA] = "ULTRA KILL!",
-    [_zp_ACHIEVEMENT_TYPE.UNSTOPPABLE] = "UNSTOPPABLE!",
-    [_zp_ACHIEVEMENT_TYPE.WICKED] = "WICKED SICK!"
-}
-
--- Here we check if our saved variables exist. If not we set defaults.
-local function _zpValidateSavedVariables()
-    if not _zp_PlayerConfigurableSettingsTable then
-        _zp_PlayerConfigurableSettingsTable = {
-            isProcessPlayerKillsOnly = true,
-            genreType = _zp_ACHIEVEMENT_GENRE_TYPE.UT
-        }
-    end
-
-    if _zp_PlayerConfigurableSettingsTable.isProcessPlayerKillsOnly == nil then
-        _zp_PlayerConfigurableSettingsTable.genreType = true
-    end
-
-    if _zp_PlayerConfigurableSettingsTable.genreType == nil then
-        _zp_PlayerConfigurableSettingsTable.genreType = _zp_ACHIEVEMENT_GENRE_TYPE.UT
-    end
-
-    if _zp_PlayerConfigurableSettingsTable.genreType ~= _zp_ACHIEVEMENT_GENRE_TYPE.UT 
-        and _zp_PlayerConfigurableSettingsTable.genreType ~= _zp_ACHIEVEMENT_GENRE_TYPE.DUKE then
-        
-        _zp_PlayerConfigurableSettingsTable.genreType = _zp_ACHIEVEMENT_GENRE_TYPE.UT
-    end
-
-    if _zp_PlayerConfigurableSettingsTable.bragSay == nil then
-        _zp_PlayerConfigurableSettingsTable.bragSay = false
-    end
-
-    if _zp_PlayerConfigurableSettingsTable.bragParty == nil then
-        _zp_PlayerConfigurableSettingsTable.bragParty = false
-    end
-
-    if _zp_PlayerConfigurableSettingsTable.bragRaid == nil then
-        _zp_PlayerConfigurableSettingsTable.bragRaid = false
-    end
-
-    if _zp_PlayerConfigurableSettingsTable.bragBG == nil then
-        _zp_PlayerConfigurableSettingsTable.bragBG = false
-    end
-end
-
----- Functions to simplying table usage
-local function _zpTablelength(t)
-    local count = 0
-    for _ in pairs(t) do count = count + 1 end
-    return count
-end
-
-local function _zpTableHasValue(tab, val)
-    for index, value in ipairs(tab) do
-        if value == val then
-            return true
-        end
-    end
-    return false
-end
-
-local function _zpTableInsertValue(tab, val)
-    table.insert(tab, val)
-end
-
-local function _zpTableRemoveIndex(tab, index)
-    return table.remove(tab, index)
-end
-
-local function _zpTableRemoveValue(tab, val)
-    for index, value in ipairs(tab) do
-        if value == val then
-            return table.remove(tab, index)
-        end
-    end
-end
-
----- Define various UI frames used by this addon.
--- This frame is used to process events fired off by the game. It's never displayed to the user.
-local _zp_frame_event = CreateFrame("Frame", "_zpEventFrame")
-_zp_frame_event:Hide()
-
--- The achievment frame. It's used to flash achievement messages to the screen.
-local _zp_frame_achievementMessage = CreateFrame("Frame", "_zpAchievmentFrame", UIParent)
-_zp_frame_achievementMessage:SetFrameStrata("BACKGROUND")
-_zp_frame_achievementMessage:SetWidth(256)
-_zp_frame_achievementMessage:SetHeight(64)
-_zp_frame_achievementMessage:SetPoint("CENTER", 0, 250)
-
--- Adding 4 backgroud font strings (offset from the main font srting) using the same text as the main font string. This provide a background/border effect.
-local _zp_frame_message_fontStringMessageBackground = _zp_frame_achievementMessage:CreateFontString(_zp_frame_achievementMessage, "OVERLAY", "GameFontNormal")
-_zp_frame_message_fontStringMessageBackground:SetTextHeight(36)
-_zp_frame_message_fontStringMessageBackground:SetTextColor(0, 0, 0, 1)
-_zp_frame_message_fontStringMessageBackground:SetPoint("CENTER", 3, 3)
-
-local _zp_frame_message_fontStringMessageBackground2 = _zp_frame_achievementMessage:CreateFontString(_zp_frame_achievementMessage, "OVERLAY", "GameFontNormal")
-_zp_frame_message_fontStringMessageBackground2:SetTextHeight(36)
-_zp_frame_message_fontStringMessageBackground2:SetTextColor(0, 0, 0, 1)
-_zp_frame_message_fontStringMessageBackground2:SetPoint("CENTER", 3, -3)
-
-local _zp_frame_message_fontStringMessageBackground3 = _zp_frame_achievementMessage:CreateFontString(_zp_frame_achievementMessage, "OVERLAY", "GameFontNormal")
-_zp_frame_message_fontStringMessageBackground3:SetTextHeight(36)
-_zp_frame_message_fontStringMessageBackground3:SetTextColor(0, 0, 0, 1)
-_zp_frame_message_fontStringMessageBackground3:SetPoint("CENTER", -3, 3)
-
-local _zp_frame_message_fontStringMessageBackground4 = _zp_frame_achievementMessage:CreateFontString(_zp_frame_achievementMessage, "OVERLAY", "GameFontNormal")
-_zp_frame_message_fontStringMessageBackground4:SetTextHeight(36)
-_zp_frame_message_fontStringMessageBackground4:SetTextColor(0, 0, 0, 1)
-_zp_frame_message_fontStringMessageBackground4:SetPoint("CENTER", -3, -3)
-
--- The main font string to display our achievement text
-local _zp_frame_message_fontStringMessage = _zp_frame_achievementMessage:CreateFontString(_zp_frame_achievementMessage, "OVERLAY", "GameFontNormal")
-_zp_frame_message_fontStringMessage:SetTextHeight(36)
-_zp_frame_message_fontStringMessage:SetTextColor(0, 1, 0, 1)
-_zp_frame_message_fontStringMessage:SetPoint("CENTER", 0, 0)
-_zp_frame_message_fontStringMessage:SetText("ZPownage Achievment Message")
-_zp_frame_achievementMessage:Hide()
-
--- A simple function to send a messages to the console with "ZPownage: " pre-pended to it.
-local function _zpSendMessageToConsole(message)
-    if message ~= "" then
-        print("ZPownage: " .. message)
-    end
-end
-
--- A function used to send our brag messages
-local function _zpSendMessageToChat(message)
-
-    local inBG = UnitInBattleground("player")
-    local inRaid = UnitInRaid("player")
-    local inParty = UnitInParty("player")
-    local chatType = "EMOTE"
-
-    if inBG and _zp_PlayerConfigurableSettingsTable.bragBG then
-        chatType = "INSTANCE_CHAT"
-        message = "I got a " .. message
-        SendChatMessage(message, chatType)
-    elseif inRaid and _zp_PlayerConfigurableSettingsTable.bragRaid then
-        chatType = "RAID"
-        message = "I got a " .. message
-        SendChatMessage(message, chatType)
-    elseif inParty and _zp_PlayerConfigurableSettingsTable.bragRaid then
-        chatType = "PARTY"
-        message = "I got a " .. message
-        SendChatMessage(message, chatType)
-    elseif _zp_PlayerConfigurableSettingsTable.bragSay then
-        chatType = "EMOTE"
-        message = "got a " .. message
-        SendChatMessage(message, chatType)
-    end
-    
-
-end
+-- Add create our event and achievement frames
+local _zp_frame_event = ZPownage_CreateEventFrame()
+local _zp_frame_achievement, _zpSetAchievementText = ZPownage_CreateAchievmentFrame()
 
 -- A function to Reset player kill stats. Called when a player enters a new world zone/instance, or when a player dies.
 local function _zpResetPlayer()
     _zp_playerGUID = UnitGUID("player")
     _zp_numberOfPlayerKillsBeforeDeath = 0
     _zp_numberOfConsectutiveMultiKills = 0
-    _zp_table_inCombatWith = {}
-    _zpSendMessageToConsole("Player kills have been set to zero")
-end
-
--- Function used to enable/disable pLayer only killing
-local function _zpTogglePlayerOnlyKillFlag()
-    if _zp_PlayerConfigurableSettingsTable.isProcessPlayerKillsOnly then
-        _zp_PlayerConfigurableSettingsTable.isProcessPlayerKillsOnly = false
-        _zpSendMessageToConsole("Player only kill mode is DISABLED")
-    else
-        _zp_PlayerConfigurableSettingsTable.isProcessPlayerKillsOnly = true
-        _zpSendMessageToConsole("PVP only kill mode is ENABLED")
-    end
+    ZPownage_table_incombatwith = {}
+    ZPownage_SendMessageToConsole("Player kills have been set to zero")
 end
 
 -- Display an achievment message on the screen using the achievement frame, then calls itself using a timer to close itself.
 local function _zpSendMessageToScreen(message)
     if message == "" then
-        _zp_frame_achievementMessage:Hide()
+        _zp_frame_achievement:Hide()
         _zp_isAchievementBeingDisplayed = false
     else
-        _zp_frame_message_fontStringMessageBackground:SetText(message)
-        _zp_frame_message_fontStringMessageBackground2:SetText(message)
-        _zp_frame_message_fontStringMessageBackground3:SetText(message)
-        _zp_frame_message_fontStringMessageBackground4:SetText(message)
-        _zp_frame_message_fontStringMessage:SetText(message)
-        _zp_frame_achievementMessage:Show()
+        _zpSetAchievementText(message)
+        _zp_frame_achievement:Show()
         _zp_isAchievementBeingDisplayed = true
         C_Timer.After(_zp_const_waitForAchievmentToCompleteInSeconds, function() _zpSendMessageToScreen("") end)
     end
@@ -286,26 +47,25 @@ end
 
 -- Display achievments to the console and the screen using the achievement window.
 local function _zpDisplayMessageToConsoleAndScreen(achievementType)
-    if achievementType == _zp_ACHIEVEMENT_TYPE.DEAD or achievementType == _zp_ACHIEVEMENT_TYPE.FIRSTBLOOD then
+    if achievementType == ZPownage_ACHIEVEMENT_TYPE.DEAD or achievementType == ZPownage_ACHIEVEMENT_TYPE.FIRSTBLOOD then
         -- Display to the console
-        _zpSendMessageToConsole(_zp_table_achievementDisplayText[achievementType])
+        ZPownage_SendMessageToConsole(ZPownage_table_achievement_displaytext[achievementType])
     else
         -- Display multi kills to the console
-        if achievementType == _zp_ACHIEVEMENT_TYPE.DOUBLE or achievementType == _zp_ACHIEVEMENT_TYPE.MULTI or
-            achievementType == _zp_ACHIEVEMENT_TYPE.MEGA or achievementType == _zp_ACHIEVEMENT_TYPE.MONSTER or
-            achievementType == _zp_ACHIEVEMENT_TYPE.ULTRA or achievementType == _zp_ACHIEVEMENT_TYPE.LUDICROUS or
-            achievementType == _zp_ACHIEVEMENT_TYPE.HOLYSHIT then
-            _zpSendMessageToConsole("Multi Kill: " .. _zp_numberOfConsectutiveMultiKills+1 .. " kills")
-            _zpSendMessageToChat("Multi Kill: " .. _zp_numberOfConsectutiveMultiKills+1 .. " kills")
+        if achievementType == ZPownage_ACHIEVEMENT_TYPE.DOUBLE or achievementType == ZPownage_ACHIEVEMENT_TYPE.MULTI or
+            achievementType == ZPownage_ACHIEVEMENT_TYPE.MEGA or achievementType == ZPownage_ACHIEVEMENT_TYPE.MONSTER or
+            achievementType == ZPownage_ACHIEVEMENT_TYPE.ULTRA or achievementType == ZPownage_ACHIEVEMENT_TYPE.LUDICROUS or
+            achievementType == ZPownage_ACHIEVEMENT_TYPE.HOLYSHIT then
+                ZPownage_SendMessageToConsole("Multi Kill: " .. _zp_numberOfConsectutiveMultiKills+1 .. " kills")
+                ZPownage_SendMessageToChat("Multi Kill: " .. _zp_numberOfConsectutiveMultiKills+1 .. " kills")
         else
             -- Display killing sprees to the console
-            _zpSendMessageToConsole("Killing Spree: " .. _zp_numberOfPlayerKillsBeforeDeath .. " kills")
-            --_zpSendMessageToChat("Killing spree: " .. _zp_numberOfPlayerKillsBeforeDeath .. " kills")
+            ZPownage_SendMessageToConsole("Killing Spree: " .. _zp_numberOfPlayerKillsBeforeDeath .. " kills")
         end
     end
 
     -- Display achievment to the screen using the achievment frame
-    _zpSendMessageToScreen(_zp_table_achievementDisplayText[achievementType])
+    _zpSendMessageToScreen(ZPownage_table_achievement_displaytext[achievementType])
 end
 
 -- Function called by an event to reset the achievements frame by closing it.
@@ -320,26 +80,26 @@ local function _zpProcessAchievementQueue()
         C_Timer.After(_zp_const_waitForAchievmentToCompleteInSeconds, function() _zpProcessAchievementQueue() end)
     end
 
-    if _zpTablelength(_zp_table_achievmentQueue) == 0 then return end
+    if ZPownage_GetTablelength(ZPownage_table_achievment_queue) == 0 then return end
 
-    local achievmentType = _zpTableRemoveIndex(_zp_table_achievmentQueue, 1)
+    local achievmentType = ZPownage_RemoveValueFromTableByIndex(ZPownage_table_achievment_queue, 1)
     if achievmentType == nil then return end
 
     _zpDisplayMessageToConsoleAndScreen(achievmentType)
 
     local audioFile
 
-    if _zp_PlayerConfigurableSettingsTable.genreType == _zp_ACHIEVEMENT_GENRE_TYPE.DUKE then
-        audioFile = _zp_table_achievementAudioFilePath_DUKE[achievmentType]
+    if ZPownage_table_playersettings.genreType == ZPownage_ACHIEVEMENT_GENRE_TYPE.DUKE then
+        audioFile = ZPownage_table_achievement_audiofilepath_duke[achievmentType]
     else
-        audioFile = _zp_table_achievementAudioFilePath_UT[achievmentType]
+        audioFile = ZPownage_table_achievement_audiofilepath_ut[achievmentType]
     end
 
     local willPlay = PlaySoundFile(audioFile, "SFX")
 
-    if willPlay == false then _zpSendMessageToConsole("Error: Unable to play audio file '" .. audioFile .. "'") end
+    if willPlay == false then ZPownage_SendMessageToConsole("Error: Unable to play audio file '" .. audioFile .. "'") end
 
-    if _zpTablelength(_zp_table_achievmentQueue) > 0 then
+    if ZPownage_GetTablelength(ZPownage_table_achievment_queue) > 0 then
         C_Timer.After(_zp_const_waitForAchievmentToCompleteInSeconds, function() _zpProcessAchievementQueue() end)
     end
 end
@@ -348,192 +108,27 @@ end
 local function _zpAddAchievementToQueue(achievmentType)
     if achievmentType == nil then return end
 
-    _zpTableInsertValue(_zp_table_achievmentQueue, achievmentType)
+    ZPownage_InsertValueIntoTable(ZPownage_table_achievment_queue, achievmentType)
 
-    if _zpTablelength(_zp_table_achievmentQueue) == 1 then
+    if ZPownage_GetTablelength(ZPownage_table_achievment_queue) == 1 then
         _zpProcessAchievementQueue()
     end
-end
-
--- Function used to add addon settings for Zpownage in the Blizzard addon UI (Interface/Addons)
-local function _zpAddPlayerConfigSettingsToAddonUI()
-
-    if _zp_isAddonSettingsFrameAdded then return end
-
-    local _zp_panel = CreateFrame( "Frame", "_zp_panel", UIParent);
-     -- Register in the Interface Addon Options GUI
-    -- Set the name for the Category for the Options Panel
-    _zp_panel.name = "ZPownage";
-
-    local _zp_panel_title_fontStringMessageBackground = _zp_panel:CreateFontString("_zp_panel_title_fontStringMessageBackground", "OVERLAY", "GameFontNormal")
-    _zp_panel_title_fontStringMessageBackground:SetTextHeight(36)
-    _zp_panel_title_fontStringMessageBackground:SetTextColor(0, 0, 0, 1)
-    _zp_panel_title_fontStringMessageBackground:SetPoint("TOP", 3, -17)
-    _zp_panel_title_fontStringMessageBackground:SetText("ZPownage")
-
-    local _zp_panel_title_fontStringMessageBackground2 = _zp_panel:CreateFontString("_zp_panel_title_fontStringMessageBackground2", "OVERLAY", "GameFontNormal")
-    _zp_panel_title_fontStringMessageBackground2:SetTextHeight(36)
-    _zp_panel_title_fontStringMessageBackground2:SetTextColor(0, 0, 0, 1)
-    _zp_panel_title_fontStringMessageBackground2:SetPoint("TOP", 3, -23)
-    _zp_panel_title_fontStringMessageBackground2:SetText("ZPownage")
-
-    local _zp_panel_title_fontStringMessageBackground3 = _zp_panel:CreateFontString("_zp_panel_title_fontStringMessageBackground3", "OVERLAY", "GameFontNormal")
-    _zp_panel_title_fontStringMessageBackground3:SetTextHeight(36)
-    _zp_panel_title_fontStringMessageBackground3:SetTextColor(0, 0, 0, 1)
-    _zp_panel_title_fontStringMessageBackground3:SetPoint("TOP", -3, -17)
-    _zp_panel_title_fontStringMessageBackground3:SetText("ZPownage")
-
-    local _zp_panel_title_fontStringMessageBackground4 = _zp_panel:CreateFontString("_zp_panel_title_fontStringMessageBackground4", "OVERLAY", "GameFontNormal")
-    _zp_panel_title_fontStringMessageBackground4:SetTextHeight(36)
-    _zp_panel_title_fontStringMessageBackground4:SetTextColor(0, 0, 0, 1)
-    _zp_panel_title_fontStringMessageBackground4:SetPoint("TOP", -3, -23)
-    _zp_panel_title_fontStringMessageBackground4:SetText("ZPownage")
-
-    local _zp_panel_title_fontStringMessage = _zp_panel:CreateFontString("_zp_panel_title_fontStringMessage", "OVERLAY", "GameFontNormal")
-    _zp_panel_title_fontStringMessage:SetTextHeight(36)
-    _zp_panel_title_fontStringMessage:SetTextColor(0, 1, 0, 1)
-    _zp_panel_title_fontStringMessage:SetPoint("TOP", 0, -20)
-    _zp_panel_title_fontStringMessage:SetText("ZPownage")
-
-    local _zp_myCheckButtonPvpOnly = CreateFrame("CheckButton", "_zp_myCheckButtonPvpOnly", _zp_panel, "UICheckButtonTemplate")
-    _zp_myCheckButtonPvpOnly:SetPoint("TOPLEFT", 10, -50)
-    _zp_myCheckButtonPvpOnly:SetChecked(_zp_PlayerConfigurableSettingsTable.isProcessPlayerKillsOnly)
-    _G[_zp_myCheckButtonPvpOnly:GetName().."Text"]:SetText("Enable Player Only Kill Mode")
-    _zp_myCheckButtonPvpOnly:SetScript("OnClick", function(self, button, down)
-        _zpTogglePlayerOnlyKillFlag()
-    end)
-
-    local _zp_myButtonReset = CreateFrame("Button", "_zp_myButtonReset", _zp_panel, "OptionsButtonTemplate")
-    _zp_myButtonReset:SetPoint("TOPLEFT", 10, -90)
-    _zp_myButtonReset:SetText("Reset Kills")
-    _zp_myButtonReset:SetScript("OnClick", function(self, button, down) _zpResetPlayer() end)
-
-    local _zp_myButtonTest = CreateFrame("Button", "_zp_myButtonTest", _zp_panel, "OptionsButtonTemplate")
-    _zp_myButtonTest:SetPoint("TOPLEFT", 120, -90)
-    _zp_myButtonTest:SetText("Test")
-    _zp_myButtonTest:SetScript("OnClick", function(self, button, down) _zpAddAchievementToQueue(_zp_ACHIEVEMENT_TYPE.DOUBLE) end)
-
-    local _zp_panel_fontString_audioGenreLabel = _zp_panel:CreateFontString("_zp_panel_fontString_audioGenreLabel", "OVERLAY", "GameTooltipText")
-    _zp_panel_fontString_audioGenreLabel:SetPoint("TOPLEFT", 325, -94)
-    if _zp_PlayerConfigurableSettingsTable.genreType == _zp_ACHIEVEMENT_GENRE_TYPE.UT then
-        _zp_panel_fontString_audioGenreLabel:SetText("Unreal Tournament")
-    elseif _zp_PlayerConfigurableSettingsTable.genreType == _zp_ACHIEVEMENT_GENRE_TYPE.DUKE then
-        _zp_panel_fontString_audioGenreLabel:SetText("Duke Nukem")
-    end
-
-    local _zp_myButtonSwitchGenre = CreateFrame("Button", "_zp_myButtonSwitchGenre", _zp_panel, "OptionsButtonTemplate")
-    _zp_myButtonSwitchGenre:SetPoint("TOPLEFT", 230, -90)
-    _zp_myButtonSwitchGenre:SetText("Switch Audio")
-    _zp_myButtonSwitchGenre:SetScript("OnClick", function(self, button, down)
-        if _zp_PlayerConfigurableSettingsTable.genreType == _zp_ACHIEVEMENT_GENRE_TYPE.UT then
-            _zp_PlayerConfigurableSettingsTable.genreType = _zp_ACHIEVEMENT_GENRE_TYPE.DUKE
-            _zp_panel_fontString_audioGenreLabel:SetText("Duke Nukem")
-        else
-            _zp_PlayerConfigurableSettingsTable.genreType = _zp_ACHIEVEMENT_GENRE_TYPE.UT
-            _zp_panel_fontString_audioGenreLabel:SetText("Unreal Tournament")
-        end
-        _zpAddAchievementToQueue(_zp_ACHIEVEMENT_TYPE.KILLSPREE)
-    end)
-
-    local _zp_frame_bragpanel = CreateFrame( "Frame", "_zp_frame_bragpanel", _zp_panel, "OptionsBoxTemplate");
-    _zp_frame_bragpanel:SetPoint("TOPLEFT", 10, -140)
-    _zp_frame_bragpanel:SetSize(475, 40)
-
-    local _zp_panel_bragpanel_title_fontString = _zp_frame_bragpanel:CreateFontString("_zp_panel_bragpanel_title_fontString", "OVERLAY", "GameFontNormal")
-    _zp_panel_bragpanel_title_fontString:SetPoint("TOPLEFT", 2, 14)
-    _zp_panel_bragpanel_title_fontString:SetText("Brag Channels: (Multi-Kills only)")
-
-    local _zp_myCheckButtonBragSay = CreateFrame("CheckButton", "_zp_myCheckButtonBragSay", _zp_frame_bragpanel, "UICheckButtonTemplate")
-    _zp_myCheckButtonBragSay:SetPoint("TOPLEFT", 10, -4)
-    _zp_myCheckButtonBragSay:SetChecked(_zp_PlayerConfigurableSettingsTable.bragSay)
-    _G[_zp_myCheckButtonBragSay:GetName().."Text"]:SetText("Emote")
-    _zp_myCheckButtonBragSay:SetScript("OnClick", function(self, button, down) 
-        _zp_myCheckButtonBragSay:GetChecked()
-        _zp_PlayerConfigurableSettingsTable.bragSay = _zp_myCheckButtonBragSay:GetChecked()
-    end)
-
-    local _zp_myCheckButtonBragParty = CreateFrame("CheckButton", "_zp_myCheckButtonBragParty", _zp_frame_bragpanel, "UICheckButtonTemplate")
-    _zp_myCheckButtonBragParty:SetPoint("TOPLEFT", 110, -4)
-    _zp_myCheckButtonBragParty:SetChecked(_zp_PlayerConfigurableSettingsTable.bragParty)
-    _G[_zp_myCheckButtonBragParty:GetName().."Text"]:SetText("Party")
-    _zp_myCheckButtonBragParty:SetScript("OnClick", function(self, button, down) 
-        _zp_PlayerConfigurableSettingsTable.bragParty = _zp_myCheckButtonBragParty:GetChecked()
-    end)
-
-    local _zp_myCheckButtonBragRaid = CreateFrame("CheckButton", "_zp_myCheckButtonBragRaid", _zp_frame_bragpanel, "UICheckButtonTemplate")
-    _zp_myCheckButtonBragRaid:SetPoint("TOPLEFT", 210, -4)
-    _zp_myCheckButtonBragRaid:SetChecked(_zp_PlayerConfigurableSettingsTable.bragRaid)
-    _G[_zp_myCheckButtonBragRaid:GetName().."Text"]:SetText("Raid")
-    _zp_myCheckButtonBragRaid:SetScript("OnClick", function(self, button, down) 
-        _zp_PlayerConfigurableSettingsTable.bragRaid = _zp_myCheckButtonBragRaid:GetChecked()
-    end)
-
-    local _zp_myCheckButtonBragBG = CreateFrame("CheckButton", "_zp_myCheckButtonBragBG", _zp_frame_bragpanel, "UICheckButtonTemplate")
-    _zp_myCheckButtonBragBG:SetPoint("TOPLEFT", 310, -4)
-    _zp_myCheckButtonBragBG:SetChecked(_zp_PlayerConfigurableSettingsTable.bragBG)
-    _G[_zp_myCheckButtonBragBG:GetName().."Text"]:SetText("Battleground")
-    _zp_myCheckButtonBragBG:SetScript("OnClick", function(self, button, down) 
-        _zp_PlayerConfigurableSettingsTable.bragBG = _zp_myCheckButtonBragBG:GetChecked()
-    end)
-
-    local _zp_frame_usage_panel = CreateFrame( "Frame", "_zp_frame_usage_panel", _zp_panel, "OptionsBoxTemplate");
-    _zp_frame_usage_panel:SetPoint("TOPLEFT", 10, -205)
-    _zp_frame_usage_panel:SetSize(600, 80)
-
-    local _zp_frame_usage_panel_rightcolumn = CreateFrame( "Frame", "_zp_frame_usage_panel_rightcolumn", _zp_frame_usage_panel);
-    _zp_frame_usage_panel_rightcolumn:SetPoint("TOPLEFT", 80, 0)
-    _zp_frame_usage_panel_rightcolumn:SetSize(520, 80)
-
-    local _zp_panel_usagepanel_title_fontString = _zp_frame_usage_panel:CreateFontString("_zp_panel_usagepanel_title_fontString", "OVERLAY", "GameFontNormal")
-    _zp_panel_usagepanel_title_fontString:SetPoint("TOPLEFT", 2, 14)
-    _zp_panel_usagepanel_title_fontString:SetText("Slash Commands:")
-
-    local _zp_panel_usage_fontStringLineReset = _zp_frame_usage_panel:CreateFontString("_zp_panel_usage_fontStringLineReset", "OVERLAY", "GameFontNormal")
-    _zp_panel_usage_fontStringLineReset:SetPoint("TOPLEFT", 10, -10)
-    _zp_panel_usage_fontStringLineReset:SetText('/zp reset')
-    local _zp_panel_usage_fontStringLinePvp = _zp_frame_usage_panel:CreateFontString("_zp_panel_usage_fontStringLinePvp", "OVERLAY", "GameFontNormal")
-    _zp_panel_usage_fontStringLinePvp:SetPoint("TOPLEFT", 10, -25)
-    _zp_panel_usage_fontStringLinePvp:SetText('/zp pvp')
-    local _zp_panel_usage_fontStringLineTest = _zp_frame_usage_panel:CreateFontString("_zp_panel_usage_fontStringLineTest", "OVERLAY", "GameFontNormal")
-    _zp_panel_usage_fontStringLineTest:SetPoint("TOPLEFT", 10, -40)
-    _zp_panel_usage_fontStringLineTest:SetText('/zp test')
-    local _zp_panel_usage_fontStringLineUi = _zp_frame_usage_panel:CreateFontString("_zp_panel_usage_fontStringLineUi", "OVERLAY", "GameFontNormal")
-    _zp_panel_usage_fontStringLineUi:SetPoint("TOPLEFT", 10, -55)
-    _zp_panel_usage_fontStringLineUi:SetText('/zp')
-
-    local _zp_panel_usage_fontStringLineResetDetails = _zp_frame_usage_panel_rightcolumn:CreateFontString("_zp_panel_usage_fontStringLineResetDetails", "OVERLAY", "GameTooltipText")
-    _zp_panel_usage_fontStringLineResetDetails:SetPoint("TOPLEFT", 0, -10)
-    _zp_panel_usage_fontStringLineResetDetails:SetText('"Reset unit kills"')
-    local _zp_panel_usage_fontStringLinePvpDetails = _zp_frame_usage_panel_rightcolumn:CreateFontString("_zp_panel_usage_fontStringLinePvpDetails", "OVERLAY", "GameTooltipText")
-    _zp_panel_usage_fontStringLinePvpDetails:SetPoint("TOPLEFT", 0, -25)
-    _zp_panel_usage_fontStringLinePvpDetails:SetText('"Toggle player only kill mode. If disabled, it tracks all kills made by the player"')
-    local _zp_panel_usage_fontStringLineTestDetails = _zp_frame_usage_panel_rightcolumn:CreateFontString("_zp_panel_usage_fontStringLineTestDetails", "OVERLAY", "GameTooltipText")
-    _zp_panel_usage_fontStringLineTestDetails:SetPoint("TOPLEFT", 0, -40)
-    _zp_panel_usage_fontStringLineTestDetails:SetText('"Test achievment display and audio playback"')
-    local _zp_panel_usage_fontStringLineUiDetails = _zp_frame_usage_panel_rightcolumn:CreateFontString("_zp_panel_usage_fontStringLineUiDetails", "OVERLAY", "GameTooltipText")
-    _zp_panel_usage_fontStringLineUiDetails:SetPoint("TOPLEFT", 0, -55)
-    _zp_panel_usage_fontStringLineUiDetails:SetText('"Show addon settings UI and usage"')
-
-    -- Add the panel to the Blizzard Interface/Addons UI
-    InterfaceOptions_AddCategory(_zp_panel);
-
-    _zp_isAddonSettingsFrameAdded = true
 end
 
 -- Function used to award players with a killing spree achievment.
 local function _zpProcessSpree()
     if _zp_numberOfPlayerKillsBeforeDeath >= 30 then
-        _zpAddAchievementToQueue(_zp_ACHIEVEMENT_TYPE.WICKED)
+        _zpAddAchievementToQueue(ZPownage_ACHIEVEMENT_TYPE.WICKED)
     elseif _zp_numberOfPlayerKillsBeforeDeath == 25 then
-        _zpAddAchievementToQueue(_zp_ACHIEVEMENT_TYPE.GODLIKE)
+        _zpAddAchievementToQueue(ZPownage_ACHIEVEMENT_TYPE.GODLIKE)
     elseif _zp_numberOfPlayerKillsBeforeDeath == 20 then
-        _zpAddAchievementToQueue(_zp_ACHIEVEMENT_TYPE.UNSTOPPABLE)
+        _zpAddAchievementToQueue(ZPownage_ACHIEVEMENT_TYPE.UNSTOPPABLE)
     elseif _zp_numberOfPlayerKillsBeforeDeath == 15 then
-        _zpAddAchievementToQueue(_zp_ACHIEVEMENT_TYPE.DOMINATING)
+        _zpAddAchievementToQueue(ZPownage_ACHIEVEMENT_TYPE.DOMINATING)
     elseif _zp_numberOfPlayerKillsBeforeDeath == 10 then
-        _zpAddAchievementToQueue(_zp_ACHIEVEMENT_TYPE.RAMPAGE)
+        _zpAddAchievementToQueue(ZPownage_ACHIEVEMENT_TYPE.RAMPAGE)
     elseif _zp_numberOfPlayerKillsBeforeDeath == 5 then
-        _zpAddAchievementToQueue(_zp_ACHIEVEMENT_TYPE.KILLSPREE)
+        _zpAddAchievementToQueue(ZPownage_ACHIEVEMENT_TYPE.KILLSPREE)
     end
 end
 
@@ -549,19 +144,19 @@ local function _zpProcessMultiKill(numberOfConsectutiveMultiKills)
 
     -- Now we can display the achievement to the player
     if _zp_numberOfConsectutiveMultiKills >= 7 then
-        _zpAddAchievementToQueue(_zp_ACHIEVEMENT_TYPE.HOLYSHIT)
+        _zpAddAchievementToQueue(ZPownage_ACHIEVEMENT_TYPE.HOLYSHIT)
     elseif _zp_numberOfConsectutiveMultiKills == 6 then
-        _zpAddAchievementToQueue(_zp_ACHIEVEMENT_TYPE.LUDICROUS)
+        _zpAddAchievementToQueue(ZPownage_ACHIEVEMENT_TYPE.LUDICROUS)
     elseif _zp_numberOfConsectutiveMultiKills == 5 then
-        _zpAddAchievementToQueue(_zp_ACHIEVEMENT_TYPE.ULTRA)
+        _zpAddAchievementToQueue(ZPownage_ACHIEVEMENT_TYPE.ULTRA)
     elseif _zp_numberOfConsectutiveMultiKills == 4 then
-        _zpAddAchievementToQueue(_zp_ACHIEVEMENT_TYPE.MONSTER)
+        _zpAddAchievementToQueue(ZPownage_ACHIEVEMENT_TYPE.MONSTER)
     elseif _zp_numberOfConsectutiveMultiKills == 3 then
-        _zpAddAchievementToQueue(_zp_ACHIEVEMENT_TYPE.MEGA)
+        _zpAddAchievementToQueue(ZPownage_ACHIEVEMENT_TYPE.MEGA)
     elseif _zp_numberOfConsectutiveMultiKills == 2 then
-        _zpAddAchievementToQueue(_zp_ACHIEVEMENT_TYPE.MULTI)
+        _zpAddAchievementToQueue(ZPownage_ACHIEVEMENT_TYPE.MULTI)
     elseif _zp_numberOfConsectutiveMultiKills == 1 then
-        _zpAddAchievementToQueue(_zp_ACHIEVEMENT_TYPE.DOUBLE)
+        _zpAddAchievementToQueue(ZPownage_ACHIEVEMENT_TYPE.DOUBLE)
     end
 
     -- Just reseting our multikill counter
@@ -587,7 +182,7 @@ end
 
 -- A callback function to handle player death. Reset our player stats and display our player dead achievment :).
 local function _zpProcessDeath()
-    _zpAddAchievementToQueue(_zp_ACHIEVEMENT_TYPE.DEAD)
+    _zpAddAchievementToQueue(ZPownage_ACHIEVEMENT_TYPE.DEAD)
     _zpResetPlayer()
 end
 
@@ -598,7 +193,7 @@ local function _zpProcessKill()
     _zp_numberOfPlayerKillsBeforeDeath = _zp_numberOfPlayerKillsBeforeDeath + 1
 
     if _zp_numberOfPlayerKillsBeforeDeath == 1 then
-        _zpAddAchievementToQueue(_zp_ACHIEVEMENT_TYPE.FIRSTBLOOD)
+        _zpAddAchievementToQueue(ZPownage_ACHIEVEMENT_TYPE.FIRSTBLOOD)
     end
 
     if _zp_numberOfPlayerKillsBeforeDeath >= 2 then _zpProcessConsecutiveKill(timeElapsedInSecondsForCurrentKill) end
@@ -607,7 +202,7 @@ local function _zpProcessKill()
     _zp_timeElapsedInSecondsSinceLastKill = timeElapsedInSecondsForCurrentKill
 
     if _zp_isDebugMode then
-        _zpSendMessageToConsole("CK:" .. _zp_numberOfPlayerKillsBeforeDeath .. "|MK:" .. _zp_numberOfConsectutiveMultiKills)
+        ZPownage_SendMessageToConsole("CK:" .. _zp_numberOfPlayerKillsBeforeDeath .. "|MK:" .. _zp_numberOfConsectutiveMultiKills)
     end
 
 end
@@ -620,15 +215,15 @@ local function _zpProcessCombatLogEvent()
 
     if subevent == "SWING_DAMAGE" or subevent == "SPELL_DAMAGE" then
 
-        if sourceGUID == _zp_playerGUID and destGUID and _zpTableHasValue(_zp_table_inCombatWith, destGUID) == false then
-            if _zp_PlayerConfigurableSettingsTable.isProcessPlayerKillsOnly and string.find(destGUID, "^Player-") == nil then return end
-            _zpTableInsertValue(_zp_table_inCombatWith, destGUID)
+        if sourceGUID == _zp_playerGUID and destGUID and ZPownage_TableHasValue(ZPownage_table_incombatwith, destGUID) == false then
+            if ZPownage_table_playersettings.isProcessPlayerKillsOnly and string.find(destGUID, "^Player-") == nil then return end
+            ZPownage_InsertValueIntoTable(ZPownage_table_incombatwith, destGUID)
         end
 
     elseif subevent == "UNIT_DIED" then
 
-        if destGUID and _zpTableHasValue(_zp_table_inCombatWith, destGUID) then
-            _zpTableRemoveValue(_zp_table_inCombatWith, destGUID)
+        if destGUID and ZPownage_TableHasValue(ZPownage_table_incombatwith, destGUID) then
+            ZPownage_RemoveValueFromTableByValue(ZPownage_table_incombatwith, destGUID)
             _zpProcessKill()
         end
 
@@ -639,29 +234,20 @@ end
 local function _zpToggleDebugFlag()
     if _zp_isDebugMode then
         _zp_isDebugMode = false
-        _zpSendMessageToConsole("DEBUG mode is DISABLED")
+        ZPownage_SendMessageToConsole("DEBUG mode is DISABLED")
     else
         _zp_isDebugMode = true
-        _zpSendMessageToConsole("DEBUG mode is ENABLED")
+        ZPownage_SendMessageToConsole("DEBUG mode is ENABLED")
     end
-end
-
--- Function used to send console usage information to the console
-local function _zpSendUsageToConsole()
-    _zpSendMessageToConsole("Usage ..")
-    _zpSendMessageToConsole("/zp reset  'Reset unit kills'")
-    _zpSendMessageToConsole("/zp pvp    'Toggle Player ONLY kill mode'")
-    _zpSendMessageToConsole("/zp test   'Test achievment display and audio playback'")
-    _zpSendMessageToConsole("/zp        'Show addon settings UI and usage'")
 end
 
 -- Function to register our primary events
 local function _zpRegisterPrimaryEvents(registerEvents)
     if _zp_isDebugMode then
         if registerEvents then
-            _zpSendMessageToConsole("Listening to primary events")
+            ZPownage_SendMessageToConsole("Listening to primary events")
         else
-            _zpSendMessageToConsole("No longer listening to primary events")
+            ZPownage_SendMessageToConsole("No longer listening to primary events")
         end
     end
 
@@ -704,9 +290,9 @@ end
 local function _zpRegisterCombatLogEvents(registerEvents)
     if _zp_isDebugMode then 
         if registerEvents then
-            _zpSendMessageToConsole("Listening to combat log events")
+            ZPownage_SendMessageToConsole("Listening to combat log events")
         else
-            _zpSendMessageToConsole("No longer listening to combat log events")
+            ZPownage_SendMessageToConsole("No longer listening to combat log events")
         end
     end
 
@@ -722,50 +308,50 @@ local function _zpRegisterCombatLogEvents(registerEvents)
 end
 
 -- Function used to process the events registered to our events frame
-local function _zpSetEventScript()
+local function _zpSetFrameEventScript()
     _zp_frame_event:SetScript("OnEvent", function(self, event, ...)
         if(event == nil) then return end
 
         if event == "PLAYER_ENTERING_WORLD" then
             if _zp_isDebugMode then
-                _zpSendMessageToConsole("PLAYER_ENTERING_WORLD fired")
+                ZPownage_SendMessageToConsole("PLAYER_ENTERING_WORLD fired")
             end
-            _zpValidateSavedVariables()
+            ZPownage_InitializeSavedVariables()
             _zpRegisterPrimaryEvents(true)
             _zpResetPlayer()
             _zpResetFrames()
-            _zpAddPlayerConfigSettingsToAddonUI()
+            ZPownage_CreatePlayerConfigSettingsUI(_zpAddAchievementToQueue, _zpResetPlayer)
         elseif event == "PLAYER_LEAVING_WORLD" then
             if _zp_isDebugMode then
-                _zpSendMessageToConsole("PLAYER_LEAVING_WORLD fired")
+                ZPownage_SendMessageToConsole("PLAYER_LEAVING_WORLD fired")
             end
             _zpRegisterPrimaryEvents(false)
         elseif (event == "COMBAT_LOG_EVENT_UNFILTERED") then
             if _zp_isDebugMode then
-                _zpSendMessageToConsole("COMBAT_LOG_EVENT_UNFILTERED fired")
+                ZPownage_SendMessageToConsole("COMBAT_LOG_EVENT_UNFILTERED fired")
             end
             _zpProcessCombatLogEvent()
         elseif event == "PLAYER_REGEN_DISABLED" then
             if _zp_isDebugMode then
-                _zpSendMessageToConsole("PLAYER_REGEN_DISABLED fired")
+                ZPownage_SendMessageToConsole("PLAYER_REGEN_DISABLED fired")
             end
             _zpRegisterCombatLogEvents(true)
         elseif event == "PLAYER_REGEN_ENABLED" then
             if _zp_isDebugMode then
-                _zpSendMessageToConsole("PLAYER_REGEN_ENABLED fired")
+                ZPownage_SendMessageToConsole("PLAYER_REGEN_ENABLED fired")
             end
             _zpRegisterCombatLogEvents(false)
-            _zp_table_inCombatWith = {}
+            ZPownage_table_incombatwith = {}
         elseif (event == "PLAYER_DEAD") then
             if _zp_isDebugMode then
-                _zpSendMessageToConsole("PLAYER_DEAD fired")
+                ZPownage_SendMessageToConsole("PLAYER_DEAD fired")
             end
             _zpProcessDeath()
         elseif (event == "PLAYER_ENTERING_BATTLEGROUND") then
             if _zp_isDebugMode then
-                _zpSendMessageToConsole("PLAYER_ENTERING_BATTLEGROUND fired")
+                ZPownage_SendMessageToConsole("PLAYER_ENTERING_BATTLEGROUND fired")
             end
-            _zpAddAchievementToQueue(_zp_ACHIEVEMENT_TYPE.PREP4BATTLE)
+            _zpAddAchievementToQueue(ZPownage_ACHIEVEMENT_TYPE.PREP4BATTLE)
         end
     end)
 end
@@ -781,11 +367,11 @@ SlashCmdList["ZPOWNAGE"] = function(msg)
     elseif msg and msg == "reset" then
         _zpResetPlayer()
     elseif msg and msg == "pvp" then
-        _zpTogglePlayerOnlyKillFlag()
+        ZPownage_TogglePlayerOnlyKillFlag()
     elseif msg and msg == "test" then
-        _zpAddAchievementToQueue(_zp_ACHIEVEMENT_TYPE.DOUBLE)
+        _zpAddAchievementToQueue(ZPownage_ACHIEVEMENT_TYPE.DOUBLE)
     else
-        _zpSendUsageToConsole()
+        ZPownage_SendUsageToConsole()
         -- Open the WOW Interface/Addon UI
         InterfaceOptionsFrame_Show()
         InterfaceOptionsFrame_OpenToCategory("ZPownage")
@@ -793,7 +379,7 @@ SlashCmdList["ZPOWNAGE"] = function(msg)
 end
 
 -- Call this guy to tie event handler functio to our event frame
-_zpSetEventScript()
+_zpSetFrameEventScript()
 
 -- Register and our main events with our event frame.
 _zp_frame_event:RegisterEvent("PLAYER_ENTERING_WORLD")
