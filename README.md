@@ -1,7 +1,7 @@
-# ZPownage ![GitHub release (latest by date)](https://img.shields.io/github/v/release/zxeltor/zpownage)
+# ZPownage [![GitHub release (latest by date)](https://img.shields.io/github/v/release/zxeltor/zpownage)](https://github.com/zxeltor/zpownage/releases/latest)
 A World of Warcraft addon which tracks player kills, and awards the player with Unreal Tournament style achievements.
 
-![ZPownageLogo](https://github.com/zxeltor/zpownage/blob/main/Screenshots/BoomkinDance_400x400.png)
+![ZPownageLogo](/Screenshots/BoomkinDance_400x400.png?v17-10-2021)
 
 ## Overview 
 This addon tracks player kills, and awards the player with Unreal Tournament style achievements.  Achievements for multi-kills and killing sprees are displayed to the user as a flash of text in the middle of the screen, along with audio playback of the Unreal Tournament Announcer.
@@ -44,7 +44,7 @@ Awards for building up chains of kills in quick succession (4 seconds apart or l
 ## Settings
 The WOW Interface AddOn UI has a section for ZPownage settings.
 
-![ZPownageConfigSettings](https://github.com/zxeltor/zpownage/blob/main/Screenshots/ConfigUi.jpg)
+![ZPownageConfigSettings](Screenshots/ConfigUi.jpg?v17-10-2021)
 
 * __Enable Player Only Kill Mode__ - You can set the addon to track player kills only, or all kills.
 * __Reset Kills__ - This resets you consecutive kills and achievments.
@@ -56,7 +56,7 @@ The WOW Interface AddOn UI has a section for ZPownage settings.
 ## Audio Playback
 Audio playback occurs with each achievment notification. To hear the audio playback you need to have Sound Effects enabled in WOW Sound settings.
 
-![WowAudioSettings](https://github.com/zxeltor/zpownage/blob/main/Screenshots/AudioSettings.jpg)
+![WowAudioSettings](Screenshots/AudioSettings.jpg?v17-10-2021)
 
 You can test audio playback by clicking the Test button in the ZPownage settings UI above, or by using the Slash Command: "/zp test"
 
