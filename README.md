@@ -1,7 +1,5 @@
-# ZPownage v1.3.1
+# ZPownage ![GitHub release (latest by date)](https://img.shields.io/github/v/release/zxeltor/zpownage)
 A World of Warcraft addon which tracks player kills, and awards the player with Unreal Tournament style achievements.
-
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/zxeltor/zpownage)
 
 ![ZPownageLogo](https://github.com/zxeltor/zpownage/blob/main/Screenshots/BoomkinDance_400x400.png)
 
