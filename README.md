@@ -66,8 +66,13 @@ You can test audio playback by clicking the Test button in the ZPownage settings
 * /zp test  "Test achievment display and audio playback"
 * /zp       "Show addon settings UI"
 
-## Installation
+## Download and Installation
+### Repositories
+* CurseForge https://www.curseforge.com/wow/addons/zpownage/files
+* MOD DB https://www.moddb.com/games/world-of-warcraft/downloads/zpownage
 ### Manual Install
-Place the folder "ZPownage" and it's contents inside your World of Warcraft addons folder. You'll need to restart World of Warcraft to see the the addon.
-### Curseforge via Overwolf
-https://www.curseforge.com/wow/addons/zpownage
+If you download the AddOn directly from a repository. Unzip the downloaded archive, and place the folder "ZPownage" and it's contents inside your World of Warcraft addons folder. You'll need to restart World of Warcraft to see the the addon.
+### AddOn Managers
+In theory, any AddOn manager that pulls AddOns from CurseForge or MOD DB should work.
+* Overwolf https://download.curseforge.com/
+* Ajour https://www.getajour.com/
