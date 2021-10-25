@@ -47,14 +47,14 @@ The WOW Interface AddOn UI has a section for ZPownage settings.
 ![ZPownageConfigSettings](Screenshots/ConfigUi.jpg?v17-10-2021)
 
 * __Enable Player Only Kill Mode__ - You can set the addon to track player kills only, or all kills.
-* __Reset Kills__ - This resets you consecutive kills and achievments.
-* __Test__ - Test the display and audio playback of a kill achievment.
+* __Reset Kills__ - This resets your consecutive kills and achievements.
+* __Test__ - Test the display and audio playback of a kill achievement.
 * __Switch Audio__ - This let's you switch between Unreal Tournament Announcer achievements and Duke Nukem one-liners.
 * __Brag Channels__ - You have the option of sending achievements to a single chat channel. The highest priority channel you have selected is chosen, as long as you're in that type of group. The lowest priority channel is Emote, with the highest being Battleground.
 * __Slash Commands__ - Just displaying command options from the console.
 
 ## Audio Playback
-Audio playback occurs with each achievment notification. To hear the audio playback you need to have Sound Effects enabled in WOW Sound settings.
+Audio playback occurs with each achievement notification. To hear the audio playback you need to have Sound Effects enabled in WOW Sound settings.
 
 ![WowAudioSettings](Screenshots/AudioSettings.jpg?v17-10-2021)
 
@@ -63,16 +63,18 @@ You can test audio playback by clicking the Test button in the ZPownage settings
 ## Slash Commands
 * /zp reset "Reset unit kills"
 * /zp pvp   "Toggle player only kill mode" - By default the addon only tracks player kills. If disabled, it tracks all kills made by the player."
-* /zp test  "Test achievment display and audio playback"
+* /zp test  "Test achievement display and audio playback"
 * /zp       "Show addon settings UI"
 
 ## Download and Installation
 ### Repositories
+Zpownage has been uploaded to the following repositories:
 * CurseForge https://www.curseforge.com/wow/addons/zpownage/files
 * MOD DB https://www.moddb.com/games/world-of-warcraft/downloads/zpownage
 ### Manual Install
 If you download the AddOn directly from a repository. Unzip the downloaded archive, and place the folder "ZPownage" and it's contents inside your World of Warcraft addons folder. You'll need to restart World of Warcraft to see the the addon.
 ### AddOn Managers
 In theory, any AddOn manager that pulls AddOns from CurseForge or MOD DB should work.
+* WowUp https://wowup.io/
 * Overwolf https://download.curseforge.com/
 * Ajour https://www.getajour.com/
