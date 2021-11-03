@@ -1,5 +1,11 @@
 ### ZPownage Versions
 
+#### v1.3.3
+Updating for new WOW patch v9.1.5
+
+#### v1.3.2
+No code changes. Updating the readme.
+
 #### v1.3.1
 * Refactored some code
 * Made a couple cosmetic changes to the AddOn config ui.
