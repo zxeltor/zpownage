@@ -104,26 +104,29 @@ function ZPownage_CreatePlayerConfigSettingsUI(_zpAddAchievementToQueue, _zpRese
         ZPownage_TogglePlayerOnlyKillFlag()
     end)
 
-    local _zp_myButtonReset = CreateFrame("Button", "_zp_myButtonReset", _zp_panel, "OptionsButtonTemplate")
-    _zp_myButtonReset:SetPoint("TOPLEFT", 10, -90)
+    local _zp_myButtonReset = CreateFrame("Button", "_zp_myButtonReset", _zp_panel, "UIPanelButtonTemplate")
+    _zp_myButtonReset:SetPoint("TOPLEFT", 10, -80)
+    _zp_myButtonReset:SetSize(80, 34)
     _zp_myButtonReset:SetText("Reset Kills")
     _zp_myButtonReset:SetScript("OnClick", function(self, button, down) _zpResetPlayer() end)
 
-    local _zp_myButtonTest = CreateFrame("Button", "_zp_myButtonTest", _zp_panel, "OptionsButtonTemplate")
-    _zp_myButtonTest:SetPoint("TOPLEFT", 120, -90)
+    local _zp_myButtonTest = CreateFrame("Button", "_zp_myButtonTest", _zp_panel, "UIPanelButtonTemplate")
+    _zp_myButtonTest:SetPoint("TOPLEFT", 120, -80)
+    _zp_myButtonTest:SetSize(50, 34)
     _zp_myButtonTest:SetText("Test")
     _zp_myButtonTest:SetScript("OnClick", function(self, button, down) _zpAddAchievementToQueue(ZPownage_ACHIEVEMENT_TYPE.DOUBLE) end)
 
     local _zp_panel_fontString_audioGenreLabel = _zp_panel:CreateFontString("_zp_panel_fontString_audioGenreLabel", "OVERLAY", "GameTooltipText")
-    _zp_panel_fontString_audioGenreLabel:SetPoint("TOPLEFT", 325, -94)
+    _zp_panel_fontString_audioGenreLabel:SetPoint("TOPLEFT", 315, -92)
     if ZPownage_table_playersettings.genreType == ZPownage_ACHIEVEMENT_GENRE_TYPE.UT then
         _zp_panel_fontString_audioGenreLabel:SetText("Unreal Tournament")
     elseif ZPownage_table_playersettings.genreType == ZPownage_ACHIEVEMENT_GENRE_TYPE.DUKE then
         _zp_panel_fontString_audioGenreLabel:SetText("Duke Nukem")
     end
 
-    local _zp_myButtonSwitchGenre = CreateFrame("Button", "_zp_myButtonSwitchGenre", _zp_panel, "OptionsButtonTemplate")
-    _zp_myButtonSwitchGenre:SetPoint("TOPLEFT", 230, -90)
+    local _zp_myButtonSwitchGenre = CreateFrame("Button", "_zp_myButtonSwitchGenre", _zp_panel, "UIPanelButtonTemplate")
+    _zp_myButtonSwitchGenre:SetPoint("TOPLEFT", 200, -80)
+    _zp_myButtonSwitchGenre:SetSize(100, 34)
     _zp_myButtonSwitchGenre:SetText("Switch Audio")
     _zp_myButtonSwitchGenre:SetScript("OnClick", function(self, button, down)
         if ZPownage_table_playersettings.genreType == ZPownage_ACHIEVEMENT_GENRE_TYPE.UT then
@@ -136,7 +139,7 @@ function ZPownage_CreatePlayerConfigSettingsUI(_zpAddAchievementToQueue, _zpRese
         _zpAddAchievementToQueue(ZPownage_ACHIEVEMENT_TYPE.KILLSPREE)
     end)
 
-    local _zp_frame_bragpanel = CreateFrame( "Frame", "_zp_frame_bragpanel", _zp_panel, "OptionsBoxTemplate");
+    local _zp_frame_bragpanel = CreateFrame( "Frame", "_zp_frame_bragpanel", _zp_panel, "ThinBorderTemplate");
     _zp_frame_bragpanel:SetPoint("TOPLEFT", 10, -140)
     _zp_frame_bragpanel:SetSize(475, 40)
 
@@ -177,7 +180,7 @@ function ZPownage_CreatePlayerConfigSettingsUI(_zpAddAchievementToQueue, _zpRese
         ZPownage_table_playersettings.bragBG = _zp_myCheckButtonBragBG:GetChecked()
     end)
 
-    local _zp_frame_usage_panel = CreateFrame( "Frame", "_zp_frame_usage_panel", _zp_panel, "OptionsBoxTemplate");
+    local _zp_frame_usage_panel = CreateFrame( "Frame", "_zp_frame_usage_panel", _zp_panel, "ThinBorderTemplate");
     _zp_frame_usage_panel:SetPoint("TOPLEFT", 10, -205)
     _zp_frame_usage_panel:SetSize(600, 80)
 

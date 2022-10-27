@@ -1,5 +1,9 @@
 ### ZPownage Versions
 
+#### v1.4.0
+* Updating for new WOW patch v10.0.0
+* Option UI under Interface/Addons was broken. Had to replace a couple frame templates removed by Blizzard.
+
 #### v1.3.6
 Updating for new WOW patch v9.2.7
 
