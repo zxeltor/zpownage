@@ -1,5 +1,8 @@
 ### ZPownage Versions
 
+#### v1.4.1
+* Testing new release build with my webhook to Curseforge. No code changes.
+
 #### v1.4.0
 * Updating for new WOW patch v10.0.0
 * Option UI under Interface/Addons was broken. Had to replace a couple frame templates removed by Blizzard.
