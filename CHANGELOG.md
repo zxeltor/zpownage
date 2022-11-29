@@ -1,5 +1,8 @@
 ### ZPownage Versions
 
+#### v1.4.2
+Updating for new WOW patch v10.0.2
+
 #### v1.4.1
 * Testing new release build with my webhook to Curseforge. No code changes.
 
