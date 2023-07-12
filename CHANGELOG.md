@@ -1,5 +1,8 @@
 ### ZPownage Versions
 
+#### v1.4.6
+Updating for new WOW patch v10.1.5
+
 #### v1.4.5
 Updating for new WOW patch v10.1.0
 

@@ -70,11 +70,8 @@ You can test audio playback by clicking the Test button in the ZPownage settings
 ### Repositories
 Zpownage has been uploaded to the following repositories:
 * CurseForge https://www.curseforge.com/wow/addons/zpownage/files
-* MOD DB https://www.moddb.com/games/world-of-warcraft/downloads/zpownage
 ### Manual Install
 If you download the AddOn directly from a repository. Unzip the downloaded archive, and place the folder "ZPownage" and it's contents inside your World of Warcraft addons folder. You'll need to restart World of Warcraft to see the the addon.
 ### AddOn Managers
 In theory, any AddOn manager that pulls AddOns from CurseForge or MOD DB should work.
-* WowUp https://wowup.io/
 * Overwolf https://download.curseforge.com/
-* Ajour https://www.getajour.com/
