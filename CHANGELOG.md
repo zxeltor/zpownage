@@ -1,5 +1,9 @@
 ### ZPownage Versions
 
+#### v1.5.0
+Updating for new WOW patch v11.0.0.
+Made changes to how the setting UI for the AddOn was being registered and displayed.
+
 #### v1.4.11
 Updating for new WOW patch v10.2.7. No code changes.
 

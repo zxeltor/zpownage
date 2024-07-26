@@ -219,7 +219,9 @@ function ZPownage_CreatePlayerConfigSettingsUI(_zpAddAchievementToQueue, _zpRese
     _zp_panel_usage_fontStringLineUiDetails:SetText('"Show addon settings UI and usage"')
 
     -- Add the panel to the Blizzard Interface/Addons UI
-    InterfaceOptions_AddCategory(_zp_panel);
+    local category, layout = Settings.RegisterCanvasLayoutCategory(_zp_panel, _zp_panel.name, _zp_panel.name);
+    category.ID = _zp_panel.name;
+    Settings.RegisterAddOnCategory(category);
 
     _zp_isAddonSettingsFrameAdded = true
 end

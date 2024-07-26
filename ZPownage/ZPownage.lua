@@ -372,9 +372,9 @@ SlashCmdList["ZPOWNAGE"] = function(msg)
         _zpAddAchievementToQueue(ZPownage_ACHIEVEMENT_TYPE.DOUBLE)
     else
         ZPownage_SendUsageToConsole()
+
         -- Open the WOW Interface/Addon UI
-        InterfaceOptionsFrame_Show()
-        InterfaceOptionsFrame_OpenToCategory("ZPownage")
+        Settings.OpenToCategory("ZPownage")
     end
 end
 
