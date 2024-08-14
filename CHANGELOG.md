@@ -1,4 +1,7 @@
-### ZPownage Versions
+#### ZPownage Versions
+
+#### v1.5.1
+Updating for new WOW patch v11.0.2. No code changes.
 
 #### v1.5.0
 Updating for new WOW patch v11.0.0.
