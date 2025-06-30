@@ -139,7 +139,7 @@ function ZPownage_CreatePlayerConfigSettingsUI(_zpAddAchievementToQueue, _zpRese
         _zpAddAchievementToQueue(ZPownage_ACHIEVEMENT_TYPE.KILLSPREE)
     end)
 
-    local _zp_frame_bragpanel = CreateFrame( "Frame", "_zp_frame_bragpanel", _zp_panel, "ThinBorderTemplate");
+    local _zp_frame_bragpanel = CreateFrame( "Frame", "_zp_frame_bragpanel", _zp_panel, "InsetFrameTemplate");
     _zp_frame_bragpanel:SetPoint("TOPLEFT", 10, -140)
     _zp_frame_bragpanel:SetSize(475, 40)
 

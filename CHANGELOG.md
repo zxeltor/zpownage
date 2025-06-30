@@ -1,5 +1,9 @@
 #### ZPownage Versions
 
+#### v1.5.6
+Fixing a bug from previous version. Looks like the frame template "ThinBorderTemplate" was removed from the UI in game version v11.1.7. This was affecting the config UI for the AddOn.
+I replaced "ThinBorderTemplate" with "InsetFrameTemplate"
+
 #### v1.5.5
 Updating for new WOW patch v11.1.7. No code changes.
 
