@@ -180,7 +180,7 @@ function ZPownage_CreatePlayerConfigSettingsUI(_zpAddAchievementToQueue, _zpRese
         ZPownage_table_playersettings.bragBG = _zp_myCheckButtonBragBG:GetChecked()
     end)
 
-    local _zp_frame_usage_panel = CreateFrame( "Frame", "_zp_frame_usage_panel", _zp_panel, "ThinBorderTemplate");
+    local _zp_frame_usage_panel = CreateFrame( "Frame", "_zp_frame_usage_panel", _zp_panel, "InsetFrameTemplate");
     _zp_frame_usage_panel:SetPoint("TOPLEFT", 10, -205)
     _zp_frame_usage_panel:SetSize(600, 80)
 
