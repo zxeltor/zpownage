@@ -1,8 +1,8 @@
-## Interface: 110107
+## Interface: 110200
 ## Title: ZPownage
 ## Notes: Announce and display your multi kill and killing spree achievements. Based on Unreal Tournament rules (a few) and announcer sounds.
 ## Author: Todd Taylor
-## Version: 1.5.7
+## Version: 1.5.8
 ## URL: www.github.com/zxeltor/zpownage
 
 ## SavedVariablesPerCharacter: ZPownage_table_playersettings

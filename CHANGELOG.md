@@ -1,5 +1,9 @@
 #### ZPownage Versions
 
+#### v1.5.8 
+Updating for WOW patch v11.2.0. No code changes.
+Testing didn't uncover any bugs. If you find any, please report: https://github.com/zxeltor/zpownage/issues
+
 #### v1.5.7
 I missed replacing "ThinBorderTemplate" with "InsetFrameTemplate" for one of the config frames.
 
