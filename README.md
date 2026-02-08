@@ -9,7 +9,7 @@ This addon tracks party kills, and awards the player with Unreal Tournament styl
 __Note:__ This addon is for fun only. This has no affect on your official in game statistics tracked by Blizzard.
 
 ## Versions
-v2.0.0 - Initial commit for WOW Midnight (c12.+). Midnight has brought about several changes to this addon. Due to new API combat restrictions, this addon can no longer track kills by player, or send messages in chat channels. For the time being, bragging is limited to emotes, and kills are tracked at the party level.
+- v2.0.0: Initial commit for WOW Midnight (c12.+). Midnight has brought about several changes to this addon. Due to new API combat restrictions, this addon can no longer track kills by player, or send messages in chat channels. For the time being, bragging is limited to emotes, and kills are tracked at the party level.
 
 ## Details 
 The addon tracks the number of units killed by the players party. When certain consecutive kill achievements are reached, a message is displayed to the screen, along with an audio file playback from the Unreal Tournament Announcer.
