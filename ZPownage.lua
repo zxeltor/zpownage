@@ -1,6 +1,6 @@
 ---- Main config settings
 -- The max number of seconds to display a kill achievement on the screen
-local _zp_const_waitForAchievmentToCompleteInSeconds = 3.0
+local _zp_const_waitForAchievementToCompleteInSeconds = 3.0
 
 ---- Runtime variables
 -- The player GUI used to track kills from the combat logs
@@ -9,30 +9,29 @@ local _zp_playerGUID
 local _zp_isDebugMode = false
 -- The number of consecutive kills with a death. Is reset after player death.
 local _zp_numberOfPlayerKillsBeforeDeath = 0
--- The number of consecutive kills to be considerd for multi kill processing.
-local _zp_numberOfConsectutiveMultiKills = 0
+-- The number of consecutive kills to be considered for multi kill processing.
+local _zp_numberOfConsecutiveMultiKills = 0
 -- The max number of seconds between consecutive kills for a new kill to be considered for multi kill processing.
 local _zp_maxSecondsBetweenConsecutiveKillsForMultiKill = 4
--- Used to determine if recent consective kills can be considered for multi kill processing.
+-- Used to determine if recent consecutive kills can be considered for multi kill processing.
 local _zp_timeElapsedInSecondsSinceLastKill = 0
--- Used to determine if the achievment window is open of not. This is used to block/delay new achievments while 
+-- Used to determine if the achievement window is open of not. This is used to block/delay new achievements while 
 -- an existing one is still being displayed.
 local _zp_isAchievementBeingDisplayed = false;
 
 -- Add create our event and achievement frames
 local _zp_frame_event = ZPownage_CreateEventFrame()
-local _zp_frame_achievement, _zpSetAchievementText = ZPownage_CreateAchievmentFrame()
+local _zp_frame_achievement, _zpSetAchievementText = ZPownage_CreateAchievementFrame()
 
 -- A function to Reset player kill stats. Called when a player enters a new world zone/instance, or when a player dies.
 local function _zpResetPlayer()
     _zp_playerGUID = UnitGUID("player")
     _zp_numberOfPlayerKillsBeforeDeath = 0
-    _zp_numberOfConsectutiveMultiKills = 0
-    ZPownage_table_incombatwith = {}
-    ZPownage_SendMessageToConsole("Player kills have been set to zero")
+    _zp_numberOfConsecutiveMultiKills = 0
+    ZPownage_SendMessageToConsole("Kills have been set to zero")
 end
 
--- Display an achievment message on the screen using the achievement frame, then calls itself using a timer to close itself.
+-- Display an achievement message on the screen using the achievement frame, then calls itself using a timer to close itself.
 local function _zpSendMessageToScreen(message)
     if message == "" then
         _zp_frame_achievement:Hide()
@@ -41,13 +40,13 @@ local function _zpSendMessageToScreen(message)
         _zpSetAchievementText(message)
         _zp_frame_achievement:Show()
         _zp_isAchievementBeingDisplayed = true
-        C_Timer.After(_zp_const_waitForAchievmentToCompleteInSeconds, function() _zpSendMessageToScreen("") end)
+        C_Timer.After(_zp_const_waitForAchievementToCompleteInSeconds, function() _zpSendMessageToScreen("") end)
     end
 end
 
--- Display achievments to the console and the screen using the achievement window.
+-- Display achievements to the console and the screen using the achievement window.
 local function _zpDisplayMessageToConsoleAndScreen(achievementType)
-    if achievementType == ZPownage_ACHIEVEMENT_TYPE.DEAD or achievementType == ZPownage_ACHIEVEMENT_TYPE.FIRSTBLOOD then
+    if _zp_isDebugMode and (achievementType == ZPownage_ACHIEVEMENT_TYPE.DEAD or achievementType == ZPownage_ACHIEVEMENT_TYPE.FIRSTBLOOD) then
         -- Display to the console
         ZPownage_SendMessageToConsole(ZPownage_table_achievement_displaytext[achievementType])
     else
@@ -56,15 +55,17 @@ local function _zpDisplayMessageToConsoleAndScreen(achievementType)
             achievementType == ZPownage_ACHIEVEMENT_TYPE.MEGA or achievementType == ZPownage_ACHIEVEMENT_TYPE.MONSTER or
             achievementType == ZPownage_ACHIEVEMENT_TYPE.ULTRA or achievementType == ZPownage_ACHIEVEMENT_TYPE.LUDICROUS or
             achievementType == ZPownage_ACHIEVEMENT_TYPE.HOLYSHIT then
-                ZPownage_SendMessageToConsole("Multi Kill: " .. _zp_numberOfConsectutiveMultiKills+1 .. " kills")
-                ZPownage_SendMessageToChat("Multi Kill: " .. _zp_numberOfConsectutiveMultiKills+1 .. " kills")
-        else
+                if _zp_isDebugMode then
+                    ZPownage_SendMessageToConsole("Multi Kill: " .. _zp_numberOfConsecutiveMultiKills+1 .. " kills")
+                end
+                ZPownage_SendMessageToChat("Multi Kill: " .. _zp_numberOfConsecutiveMultiKills+1 .. " kills")
+        elseif _zp_isDebugMode then
             -- Display killing sprees to the console
             ZPownage_SendMessageToConsole("Killing Spree: " .. _zp_numberOfPlayerKillsBeforeDeath .. " kills")
         end
     end
 
-    -- Display achievment to the screen using the achievment frame
+    -- Display achievement to the screen using the achievement frame
     _zpSendMessageToScreen(ZPownage_table_achievement_displaytext[achievementType])
 end
 
@@ -74,48 +75,48 @@ local function _zpResetFrames()
     _zpSendMessageToScreen("")
 end
 
--- This function processes our achievment queue table
+-- This function processes our achievement queue table
 local function _zpProcessAchievementQueue()
     if _zp_isAchievementBeingDisplayed then
-        C_Timer.After(_zp_const_waitForAchievmentToCompleteInSeconds, function() _zpProcessAchievementQueue() end)
+        C_Timer.After(_zp_const_waitForAchievementToCompleteInSeconds, function() _zpProcessAchievementQueue() end)
     end
 
-    if ZPownage_GetTablelength(ZPownage_table_achievment_queue) == 0 then return end
+    if ZPownage_GetTablelength(ZPownage_table_achievement_queue) == 0 then return end
 
-    local achievmentType = ZPownage_RemoveValueFromTableByIndex(ZPownage_table_achievment_queue, 1)
-    if achievmentType == nil then return end
+    local achievementType = ZPownage_RemoveValueFromTableByIndex(ZPownage_table_achievement_queue, 1)
+    if achievementType == nil then return end
 
-    _zpDisplayMessageToConsoleAndScreen(achievmentType)
+    _zpDisplayMessageToConsoleAndScreen(achievementType)
 
     local audioFile
 
     if ZPownage_table_playersettings.genreType == ZPownage_ACHIEVEMENT_GENRE_TYPE.DUKE then
-        audioFile = ZPownage_table_achievement_audiofilepath_duke[achievmentType]
+        audioFile = ZPownage_table_achievement_audiofilepath_duke[achievementType]
     else
-        audioFile = ZPownage_table_achievement_audiofilepath_ut[achievmentType]
+        audioFile = ZPownage_table_achievement_audiofilepath_ut[achievementType]
     end
 
     local willPlay = PlaySoundFile(audioFile, "SFX")
 
     if willPlay == false then ZPownage_SendMessageToConsole("Error: Unable to play audio file '" .. audioFile .. "'") end
 
-    if ZPownage_GetTablelength(ZPownage_table_achievment_queue) > 0 then
-        C_Timer.After(_zp_const_waitForAchievmentToCompleteInSeconds, function() _zpProcessAchievementQueue() end)
+    if ZPownage_GetTablelength(ZPownage_table_achievement_queue) > 0 then
+        C_Timer.After(_zp_const_waitForAchievementToCompleteInSeconds, function() _zpProcessAchievementQueue() end)
     end
 end
 
 -- Used to add new achievements to the achievement queue table
-local function _zpAddAchievementToQueue(achievmentType)
-    if achievmentType == nil then return end
+local function _zpAddAchievementToQueue(achievementType)
+    if achievementType == nil then return end
 
-    ZPownage_InsertValueIntoTable(ZPownage_table_achievment_queue, achievmentType)
+    ZPownage_InsertValueIntoTable(ZPownage_table_achievement_queue, achievementType)
 
-    if ZPownage_GetTablelength(ZPownage_table_achievment_queue) == 1 then
+    if ZPownage_GetTablelength(ZPownage_table_achievement_queue) == 1 then
         _zpProcessAchievementQueue()
     end
 end
 
--- Function used to award players with a killing spree achievment.
+-- Function used to award players with a killing spree achievement.
 local function _zpProcessSpree()
     if _zp_numberOfPlayerKillsBeforeDeath >= 30 then
         _zpAddAchievementToQueue(ZPownage_ACHIEVEMENT_TYPE.WICKED)
@@ -134,53 +135,53 @@ end
 
 -- Function used to process multikills.
 -- Note: This is called by a timer in another method
-local function _zpProcessMultiKill(numberOfConsectutiveMultiKills)
+local function _zpProcessMultiKill(numberOfConsecutiveMultiKills)
 
-    -- These numbers are compared to see if a new multikill achievment is waiting to be processed.
-    -- As an example, we do this so to ensure a Monster kill achiement isn't preceeded by announcements
-    -- for Mega, Multi, and Double.  We only want the highest achievment to be announced for a single
+    -- These numbers are compared to see if a new multikill achievement is waiting to be processed.
+    -- As an example, we do this so to ensure a Monster kill achievement isn't preceded by announcements
+    -- for Mega, Multi, and Double.  We only want the highest achievement to be announced for a single
     -- multikill achievement
-    if(numberOfConsectutiveMultiKills ~= _zp_numberOfConsectutiveMultiKills) then return end
+    if(numberOfConsecutiveMultiKills ~= _zp_numberOfConsecutiveMultiKills) then return end
 
     -- Now we can display the achievement to the player
-    if _zp_numberOfConsectutiveMultiKills >= 7 then
+    if _zp_numberOfConsecutiveMultiKills >= 7 then
         _zpAddAchievementToQueue(ZPownage_ACHIEVEMENT_TYPE.HOLYSHIT)
-    elseif _zp_numberOfConsectutiveMultiKills == 6 then
+    elseif _zp_numberOfConsecutiveMultiKills == 6 then
         _zpAddAchievementToQueue(ZPownage_ACHIEVEMENT_TYPE.LUDICROUS)
-    elseif _zp_numberOfConsectutiveMultiKills == 5 then
+    elseif _zp_numberOfConsecutiveMultiKills == 5 then
         _zpAddAchievementToQueue(ZPownage_ACHIEVEMENT_TYPE.ULTRA)
-    elseif _zp_numberOfConsectutiveMultiKills == 4 then
+    elseif _zp_numberOfConsecutiveMultiKills == 4 then
         _zpAddAchievementToQueue(ZPownage_ACHIEVEMENT_TYPE.MONSTER)
-    elseif _zp_numberOfConsectutiveMultiKills == 3 then
+    elseif _zp_numberOfConsecutiveMultiKills == 3 then
         _zpAddAchievementToQueue(ZPownage_ACHIEVEMENT_TYPE.MEGA)
-    elseif _zp_numberOfConsectutiveMultiKills == 2 then
+    elseif _zp_numberOfConsecutiveMultiKills == 2 then
         _zpAddAchievementToQueue(ZPownage_ACHIEVEMENT_TYPE.MULTI)
-    elseif _zp_numberOfConsectutiveMultiKills == 1 then
+    elseif _zp_numberOfConsecutiveMultiKills == 1 then
         _zpAddAchievementToQueue(ZPownage_ACHIEVEMENT_TYPE.DOUBLE)
     end
 
-    -- Just reseting our multikill counter
-    _zp_numberOfConsectutiveMultiKills = 0
+    -- Just resetting our multikill counter
+    _zp_numberOfConsecutiveMultiKills = 0
 
 end
 
--- A function to process consective kills. Awards for building up chains of kills in quick succession (4 seconds apart)
+-- A function to process consecutive kills. Awards for building up chains of kills in quick succession (4 seconds apart)
 local function _zpProcessConsecutiveKill(timeElapsedInSecondsForCurrentKill)
     -- Determine if our new kill is within our timeoue of the previous kill to be considered for multi kill processing
     if timeElapsedInSecondsForCurrentKill - _zp_timeElapsedInSecondsSinceLastKill <= _zp_maxSecondsBetweenConsecutiveKillsForMultiKill then
 
         -- Increment our multi kill count and use a timer to call our multi kill processing function.
-        _zp_numberOfConsectutiveMultiKills = _zp_numberOfConsectutiveMultiKills + 1
+        _zp_numberOfConsecutiveMultiKills = _zp_numberOfConsecutiveMultiKills + 1
         -- We set the timer so the method is called outside the multi kill timeout. This allows a new incoming player kill
         -- inside the multi kill timeout to be considered by the multi kill processing.
-        -- Example: If the player gets a double kill, and a second or two later gets a tripple kill (which is inside our multi kill timeout),
-        -- we want to announce/display the achievment for the tripple kill instead of the doubel kill.
-        C_Timer.After(_zp_const_waitForAchievmentToCompleteInSeconds + 0.1, function() _zpProcessMultiKill(_zp_numberOfConsectutiveMultiKills) end)
+        -- Example: If the player gets a double kill, and a second or two later gets a triple kill (which is inside our multi kill timeout),
+        -- we want to announce/display the achievement for the triple kill instead of the double kill.
+        C_Timer.After(_zp_const_waitForAchievementToCompleteInSeconds + 0.1, function() _zpProcessMultiKill(_zp_numberOfConsecutiveMultiKills) end)
 
     end
 end
 
--- A callback function to handle player death. Reset our player stats and display our player dead achievment :).
+-- A callback function to handle player death. Reset our player stats and display our player dead achievement :).
 local function _zpProcessDeath()
     _zpAddAchievementToQueue(ZPownage_ACHIEVEMENT_TYPE.DEAD)
     _zpResetPlayer()
@@ -202,32 +203,46 @@ local function _zpProcessKill()
     _zp_timeElapsedInSecondsSinceLastKill = timeElapsedInSecondsForCurrentKill
 
     if _zp_isDebugMode then
-        ZPownage_SendMessageToConsole("CK:" .. _zp_numberOfPlayerKillsBeforeDeath .. "|MK:" .. _zp_numberOfConsectutiveMultiKills)
+        ZPownage_SendMessageToConsole("CK:" .. _zp_numberOfPlayerKillsBeforeDeath .. "|MK:" .. _zp_numberOfConsecutiveMultiKills)
     end
 
 end
 
 -- A function used to process the current combat log event.
-local function _zpProcessCombatLogEvent()
-    local timestamp, subevent, _, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags = CombatLogGetCurrentEventInfo()
+local function _zpProcessCombatLogEvent(...)
 
-    if subevent == nil then return end
-
-    if subevent == "SWING_DAMAGE" or subevent == "SPELL_DAMAGE" then
-
-        if sourceGUID == _zp_playerGUID and destGUID and ZPownage_TableHasValue(ZPownage_table_incombatwith, destGUID) == false then
-            if ZPownage_table_playersettings.isProcessPlayerKillsOnly and string.find(destGUID, "^Player-") == nil then return end
-            ZPownage_InsertValueIntoTable(ZPownage_table_incombatwith, destGUID)
+    --[[
+     If the player has enabled player only kill mode, then we want to check if the player is in a battleground
+     or arena before processing the kill. If the player is not in a battleground or arena, then we want to 
+     ignore the kill.
+     ]]
+    if ZPownage_table_playersettings.isProcessPlayerKillsOnly then
+        local name, instanceType = GetInstanceInfo()
+        if not (instanceType == "pvp" or instanceType == "arena") then
+            return
         end
-
-    elseif subevent == "UNIT_DIED" then
-
-        if destGUID and ZPownage_TableHasValue(ZPownage_table_incombatwith, destGUID) then
-            ZPownage_RemoveValueFromTableByValue(ZPownage_table_incombatwith, destGUID)
-            _zpProcessKill()
-        end
-
     end
+
+    local attackerGUID, targetGUID = ...
+
+    --[[
+     The above parameters are passed by the PARTY_KILL event. We can use these to determine the source and target of the kill.
+     When doing solo content, the parameters seem to work even when in combat. Unfortunately, when in a party and in combat, 
+     these parameters become secret, and throw an error when you try to access them. So for now, we are just going to process kills 
+     from the PARTY_KILL event without trying to determine the source and target of the kill. This means we will process all kills 
+     that the player is involved in, even if they are not the killer.
+
+     issecretvalue(value) and canaccessvalue(value) are used to determine if the parameters passed by the PARTY_KILL event are accessible or not.
+     When in combat and in a party, these parameters become secret and throw an error when you try to access them. So, we use these functions to 
+     check if we can access the parameters before trying to access them.
+    ]]
+
+    -- Using this for testing purposes. I want to see when this param is available.
+    if _zp_isDebugMode and canaccessvalue(attackerGUID) and attackerGUID == _zp_playerGUID then
+            ZPownage_SendMessageToConsole("Player GUID: " .. tostring(attackerGUID) .. " got the kill!")
+    end
+
+    _zpProcessKill()
 end
 
 -- Function used to enable/disable debug logging to the console
@@ -252,57 +267,20 @@ local function _zpRegisterPrimaryEvents(registerEvents)
     end
 
     if registerEvents then
-        if _zp_frame_event:IsEventRegistered("PLAYER_REGEN_DISABLED") == false then
-            _zp_frame_event:RegisterEvent("PLAYER_REGEN_DISABLED")
-        end
-
-        if _zp_frame_event:IsEventRegistered("PLAYER_REGEN_ENABLED") == false then
-            _zp_frame_event:RegisterEvent("PLAYER_REGEN_ENABLED")
-        end
-
-        if _zp_frame_event:IsEventRegistered("PLAYER_ENTERING_BATTLEGROUND") == false then
-            _zp_frame_event:RegisterEvent("PLAYER_ENTERING_BATTLEGROUND")
+        if _zp_frame_event:IsEventRegistered("PARTY_KILL") == false then
+            _zp_frame_event:RegisterEvent("PARTY_KILL")
         end
 
         if _zp_frame_event:IsEventRegistered("PLAYER_DEAD") == false then
             _zp_frame_event:RegisterEvent("PLAYER_DEAD")
         end
     else
-        if _zp_frame_event:IsEventRegistered("PLAYER_REGEN_DISABLED") then
-            _zp_frame_event:UnregisterEvent("PLAYER_REGEN_DISABLED")
-        end
-
-        if _zp_frame_event:IsEventRegistered("PLAYER_REGEN_ENABLED") then
-            _zp_frame_event:UnregisterEvent("PLAYER_REGEN_ENABLED")
-        end
-
-        if _zp_frame_event:IsEventRegistered("PLAYER_ENTERING_BATTLEGROUND") then
-            _zp_frame_event:UnregisterEvent("PLAYER_ENTERING_BATTLEGROUND")
+        if _zp_frame_event:IsEventRegistered("PARTY_KILL") then
+            _zp_frame_event:UnregisterEvent("PARTY_KILL")
         end
 
         if _zp_frame_event:IsEventRegistered("PLAYER_DEAD") then
             _zp_frame_event:UnregisterEvent("PLAYER_DEAD")
-        end
-    end
-end
-
--- Function to register combat log events
-local function _zpRegisterCombatLogEvents(registerEvents)
-    if _zp_isDebugMode then 
-        if registerEvents then
-            ZPownage_SendMessageToConsole("Listening to combat log events")
-        else
-            ZPownage_SendMessageToConsole("No longer listening to combat log events")
-        end
-    end
-
-    if registerEvents then
-        if _zp_frame_event:IsEventRegistered("COMBAT_LOG_EVENT_UNFILTERED") == false then
-            _zp_frame_event:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-        end
-    else
-        if _zp_frame_event:IsEventRegistered("COMBAT_LOG_EVENT_UNFILTERED") then
-            _zp_frame_event:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
         end
     end
 end
@@ -326,32 +304,21 @@ local function _zpSetFrameEventScript()
                 ZPownage_SendMessageToConsole("PLAYER_LEAVING_WORLD fired")
             end
             _zpRegisterPrimaryEvents(false)
-        elseif (event == "COMBAT_LOG_EVENT_UNFILTERED") then
-            if _zp_isDebugMode then
-                ZPownage_SendMessageToConsole("COMBAT_LOG_EVENT_UNFILTERED fired")
-            end
-            _zpProcessCombatLogEvent()
-        elseif event == "PLAYER_REGEN_DISABLED" then
-            if _zp_isDebugMode then
-                ZPownage_SendMessageToConsole("PLAYER_REGEN_DISABLED fired")
-            end
-            _zpRegisterCombatLogEvents(true)
-        elseif event == "PLAYER_REGEN_ENABLED" then
-            if _zp_isDebugMode then
-                ZPownage_SendMessageToConsole("PLAYER_REGEN_ENABLED fired")
-            end
-            _zpRegisterCombatLogEvents(false)
-            ZPownage_table_incombatwith = {}
-        elseif (event == "PLAYER_DEAD") then
-            if _zp_isDebugMode then
-                ZPownage_SendMessageToConsole("PLAYER_DEAD fired")
-            end
-            _zpProcessDeath()
         elseif (event == "PLAYER_ENTERING_BATTLEGROUND") then
             if _zp_isDebugMode then
                 ZPownage_SendMessageToConsole("PLAYER_ENTERING_BATTLEGROUND fired")
             end
             _zpAddAchievementToQueue(ZPownage_ACHIEVEMENT_TYPE.PREP4BATTLE)
+        elseif (event == "PARTY_KILL") then
+            if _zp_isDebugMode then
+                ZPownage_SendMessageToConsole("PARTY_KILL fired")
+            end
+            _zpProcessCombatLogEvent(...)
+        elseif (event == "PLAYER_DEAD") then
+            if _zp_isDebugMode then
+                ZPownage_SendMessageToConsole("PLAYER_DEAD fired")
+            end
+            _zpProcessDeath()
         end
     end)
 end
@@ -374,11 +341,11 @@ SlashCmdList["ZPOWNAGE"] = function(msg)
         ZPownage_SendUsageToConsole()
 
         -- Open the WOW Interface/Addon UI
-        Settings.OpenToCategory("ZPownage")
+        Settings.OpenToCategory(ZPownage_Settings_UPanel_ID)
     end
 end
 
--- Call this guy to tie event handler functio to our event frame
+-- Call this guy to tie event handler function to our event frame
 _zpSetFrameEventScript()
 
 -- Register and our main events with our event frame.

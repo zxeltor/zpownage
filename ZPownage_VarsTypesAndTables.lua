@@ -1,10 +1,8 @@
 -- The base folder for our audio files
 local _zp_const_audioFileBaseFolder = "Interface\\AddOns\\ZPownage\\Audio\\";
 
--- A table used to to keep track of units the player has attacked
-ZPownage_table_incombatwith = {}
 -- A table used as an achievement queue for processing. This guarentees we process achievments in the order they occured.
-ZPownage_table_achievment_queue = {}
+ZPownage_table_achievement_queue = {}
 
 ZPownage_ACHIEVEMENT_TYPE = {
     DEAD = 1, DOMINATING = 2, DOUBLE = 3, FIRSTBLOOD = 4, GODLIKE = 5, HOLYSHIT = 6, KILLSPREE = 7, LUDICROUS = 8,

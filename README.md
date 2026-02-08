@@ -1,21 +1,23 @@
 # ZPownage [![GitHub release (latest by date)](https://img.shields.io/github/v/release/zxeltor/zpownage)](https://github.com/zxeltor/zpownage/releases/latest)
-A World of Warcraft addon which tracks player kills, and awards the player with Unreal Tournament style achievements.
+A World of Warcraft addon which tracks party kills, and awards the player with Unreal Tournament style achievements.
 
 ![ZPownageLogo](/Screenshots/BoomkinDance_400x400.png?v17-10-2021)
 
 ## Overview 
-This addon tracks player kills, and awards the player with Unreal Tournament style achievements.  Achievements for multi-kills and killing sprees are displayed to the user as a flash of text in the middle of the screen, along with audio playback of the Unreal Tournament Announcer.
+This addon tracks party kills, and awards the player with Unreal Tournament style achievements.  Achievements for multi-kills and killing sprees are displayed to the user as a flash of text in the middle of the screen, along with audio playback of the Unreal Tournament Announcer.
 
 __Note:__ This addon is for fun only. This has no affect on your official in game statistics tracked by Blizzard.
 
-## Details 
-The addon maintains a list of units attacked by the player while in combat. Each unit killed by the player while in combat is counted as a kill. When the player reaches certain consecutive kill achievements, a message is displayed to the screen, along with an audio file playback from the Unreal Tournament Announcer.
+## Versions
+v2.0.0 - Initial commit for WOW Midnight (c12.+). Midnight has brought about several changes to this addon. Due to new API combat restrictions, this addon can no longer track kills by player, or send messages in chat channels. For the time being, bragging is limited to emotes, and kills are tracked at the party level.
 
-Your consecutive kill count is reset when you enter a new zone, or player death occurs. This puts you back at the bottom of the achievement list.
+## Details 
+The addon tracks the number of units killed by the players party. When certain consecutive kill achievements are reached, a message is displayed to the screen, along with an audio file playback from the Unreal Tournament Announcer.
+
+The consecutive kill count is reset when you enter a new zone, or player death occurs. This puts you back at the bottom of the achievement list.
 
 __Note(s):__
 * If you attack a unit, then leave combat with the unit before they die, you won't get credit for the kill.
-* Group unit kills don't count towards a players kill count, unless the player actually attacked the killed unit.
 
 ## Kill Scoring 
 
@@ -46,11 +48,11 @@ The WOW Interface AddOn UI has a section for ZPownage settings.
 
 ![ZPownageConfigSettings](Screenshots/ConfigUi.jpg?v17-10-2021)
 
-* __Enable Player Only Kill Mode__ - You can set the addon to track player kills only, or all kills.
-* __Reset Kills__ - This resets your consecutive kills and achievements.
+* __Enable Arena/Battleground Only Kill Mode__ - You can set the addon to only track kills in arena or battlegrounds.
+* __Reset Kills__ - This resets consecutive kills and achievements.
 * __Test__ - Test the display and audio playback of a kill achievement.
 * __Switch Audio__ - This let's you switch between Unreal Tournament Announcer achievements and Duke Nukem one-liners.
-* __Brag Channels__ - You have the option of sending achievements to a single chat channel. The highest priority channel you have selected is chosen, as long as you're in that type of group. The lowest priority channel is Emote, with the highest being Battleground.
+* __Brag Channels__ - You have the option of sending achievements using emotes.
 * __Slash Commands__ - Just displaying command options from the console.
 
 ## Audio Playback
@@ -61,10 +63,10 @@ Audio playback occurs with each achievement notification. To hear the audio play
 You can test audio playback by clicking the Test button in the ZPownage settings UI above, or by using the Slash Command: "/zp test"
 
 ## Slash Commands
-* /zp reset "Reset unit kills"
-* /zp pvp   "Toggle player only kill mode" - By default the addon only tracks player kills. If disabled, it tracks all kills made by the player."
-* /zp test  "Test achievement display and audio playback"
-* /zp       "Show addon settings UI"
+* /zp reset "Reset kill count."
+* /zp pvp   "Toggle Arena/Battleground ONLY kill mode."
+* /zp test  "Test achievement display and audio playback."
+* /zp       "Show addon settings UI and usage."
 
 ## Download and Installation
 ### Repositories

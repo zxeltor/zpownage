@@ -1,21 +1,23 @@
 ---- Define various UI frames used by this addon.
 -- This frame is used to process events fired off by the game. It's never displayed to the user.
 
+ZPownage_Settings_UPanel_ID = 0;
+
 function ZPownage_CreateEventFrame()
     local _zp_frame_event = CreateFrame("Frame", "_zpEventFrame")
     _zp_frame_event:Hide()
     return _zp_frame_event
 end
 
-function ZPownage_CreateAchievmentFrame()
-   -- The achievment frame. It's used to flash achievement messages to the screen.
-    local _zp_frame_achievementMessage = CreateFrame("Frame", "_zpAchievmentFrame", UIParent)
+function ZPownage_CreateAchievementFrame()
+   -- The achievement frame. It's used to flash achievement messages to the screen.
+    local _zp_frame_achievementMessage = CreateFrame("Frame", "_zpAchievementFrame", UIParent)
     _zp_frame_achievementMessage:SetFrameStrata("BACKGROUND")
     _zp_frame_achievementMessage:SetWidth(256)
     _zp_frame_achievementMessage:SetHeight(64)
     _zp_frame_achievementMessage:SetPoint("CENTER", 0, 250)
     
-    -- Adding 4 backgroud font strings (offset from the main font srting) using the same text as the main font string. This provide a background/border effect.
+    -- Adding 4 background font strings (offset from the main font srting) using the same text as the main font string. This provide a background/border effect.
     local _zp_frame_message_fontStringMessageBackground = _zp_frame_achievementMessage:CreateFontString("_zp_frame_message_fontStringMessageBackground", "OVERLAY", "GameFontNormal")
     _zp_frame_message_fontStringMessageBackground:SetTextHeight(36)
     _zp_frame_message_fontStringMessageBackground:SetTextColor(0, 0, 0, 1)
@@ -41,7 +43,7 @@ function ZPownage_CreateAchievmentFrame()
     _zp_frame_message_fontStringMessage:SetTextHeight(36)
     _zp_frame_message_fontStringMessage:SetTextColor(0, 1, 0, 1)
     _zp_frame_message_fontStringMessage:SetPoint("CENTER", 0, 0)
-    _zp_frame_message_fontStringMessage:SetText("ZPownage Achievment Message")
+    _zp_frame_message_fontStringMessage:SetText("ZPownage Achievement Message")
     _zp_frame_achievementMessage:Hide()
 
     return _zp_frame_achievementMessage,
@@ -99,7 +101,7 @@ function ZPownage_CreatePlayerConfigSettingsUI(_zpAddAchievementToQueue, _zpRese
     local _zp_myCheckButtonPvpOnly = CreateFrame("CheckButton", "_zp_myCheckButtonPvpOnly", _zp_panel, "UICheckButtonTemplate")
     _zp_myCheckButtonPvpOnly:SetPoint("TOPLEFT", 10, -50)
     _zp_myCheckButtonPvpOnly:SetChecked(ZPownage_table_playersettings.isProcessPlayerKillsOnly)
-    _G[_zp_myCheckButtonPvpOnly:GetName().."Text"]:SetText("Enable Player Only Kill Mode")
+    _G[_zp_myCheckButtonPvpOnly:GetName().."Text"]:SetText("Enable Battleground/Arena Only Mode")
     _zp_myCheckButtonPvpOnly:SetScript("OnClick", function(self, button, down)
         ZPownage_TogglePlayerOnlyKillFlag()
     end)
@@ -139,50 +141,30 @@ function ZPownage_CreatePlayerConfigSettingsUI(_zpAddAchievementToQueue, _zpRese
         _zpAddAchievementToQueue(ZPownage_ACHIEVEMENT_TYPE.KILLSPREE)
     end)
 
+    -- Bragging panel
+
     local _zp_frame_bragpanel = CreateFrame( "Frame", "_zp_frame_bragpanel", _zp_panel, "InsetFrameTemplate");
     _zp_frame_bragpanel:SetPoint("TOPLEFT", 10, -140)
-    _zp_frame_bragpanel:SetSize(475, 40)
+    _zp_frame_bragpanel:SetSize(100, 40)
 
     local _zp_panel_bragpanel_title_fontString = _zp_frame_bragpanel:CreateFontString("_zp_panel_bragpanel_title_fontString", "OVERLAY", "GameFontNormal")
     _zp_panel_bragpanel_title_fontString:SetPoint("TOPLEFT", 2, 14)
-    _zp_panel_bragpanel_title_fontString:SetText("Auto-Brag in channels: (Multi-Kills only)")
+    _zp_panel_bragpanel_title_fontString:SetText("Auto-Brag: (Multi-Kills only)")
 
-    local _zp_myCheckButtonBragSay = CreateFrame("CheckButton", "_zp_myCheckButtonBragSay", _zp_frame_bragpanel, "UICheckButtonTemplate")
-    _zp_myCheckButtonBragSay:SetPoint("TOPLEFT", 10, -4)
-    _zp_myCheckButtonBragSay:SetChecked(ZPownage_table_playersettings.bragSay)
-    _G[_zp_myCheckButtonBragSay:GetName().."Text"]:SetText("Emote")
-    _zp_myCheckButtonBragSay:SetScript("OnClick", function(self, button, down) 
-        _zp_myCheckButtonBragSay:GetChecked()
-        ZPownage_table_playersettings.bragSay = _zp_myCheckButtonBragSay:GetChecked()
+    local _zp_myCheckButtonBragEmote = CreateFrame("CheckButton", "_zp_myCheckButtonBragEmote", _zp_frame_bragpanel, "UICheckButtonTemplate")
+    _zp_myCheckButtonBragEmote:SetPoint("TOPLEFT", 10, -4)
+    _zp_myCheckButtonBragEmote:SetChecked(ZPownage_table_playersettings.bragEmote)
+    _G[_zp_myCheckButtonBragEmote:GetName().."Text"]:SetText("Emote")
+    _zp_myCheckButtonBragEmote:SetScript("OnClick", function(self, button, down) 
+        _zp_myCheckButtonBragEmote:GetChecked()
+        ZPownage_table_playersettings.bragEmote = _zp_myCheckButtonBragEmote:GetChecked()
     end)
 
-    local _zp_myCheckButtonBragParty = CreateFrame("CheckButton", "_zp_myCheckButtonBragParty", _zp_frame_bragpanel, "UICheckButtonTemplate")
-    _zp_myCheckButtonBragParty:SetPoint("TOPLEFT", 110, -4)
-    _zp_myCheckButtonBragParty:SetChecked(ZPownage_table_playersettings.bragParty)
-    _G[_zp_myCheckButtonBragParty:GetName().."Text"]:SetText("Party")
-    _zp_myCheckButtonBragParty:SetScript("OnClick", function(self, button, down) 
-        ZPownage_table_playersettings.bragParty = _zp_myCheckButtonBragParty:GetChecked()
-    end)
-
-    local _zp_myCheckButtonBragRaid = CreateFrame("CheckButton", "_zp_myCheckButtonBragRaid", _zp_frame_bragpanel, "UICheckButtonTemplate")
-    _zp_myCheckButtonBragRaid:SetPoint("TOPLEFT", 210, -4)
-    _zp_myCheckButtonBragRaid:SetChecked(ZPownage_table_playersettings.bragRaid)
-    _G[_zp_myCheckButtonBragRaid:GetName().."Text"]:SetText("Raid")
-    _zp_myCheckButtonBragRaid:SetScript("OnClick", function(self, button, down) 
-        ZPownage_table_playersettings.bragRaid = _zp_myCheckButtonBragRaid:GetChecked()
-    end)
-
-    local _zp_myCheckButtonBragBG = CreateFrame("CheckButton", "_zp_myCheckButtonBragBG", _zp_frame_bragpanel, "UICheckButtonTemplate")
-    _zp_myCheckButtonBragBG:SetPoint("TOPLEFT", 310, -4)
-    _zp_myCheckButtonBragBG:SetChecked(ZPownage_table_playersettings.bragBG)
-    _G[_zp_myCheckButtonBragBG:GetName().."Text"]:SetText("Battleground")
-    _zp_myCheckButtonBragBG:SetScript("OnClick", function(self, button, down) 
-        ZPownage_table_playersettings.bragBG = _zp_myCheckButtonBragBG:GetChecked()
-    end)
+    -- Usage panel
 
     local _zp_frame_usage_panel = CreateFrame( "Frame", "_zp_frame_usage_panel", _zp_panel, "InsetFrameTemplate");
     _zp_frame_usage_panel:SetPoint("TOPLEFT", 10, -205)
-    _zp_frame_usage_panel:SetSize(600, 80)
+    _zp_frame_usage_panel:SetSize(550, 80)
 
     local _zp_frame_usage_panel_rightcolumn = CreateFrame( "Frame", "_zp_frame_usage_panel_rightcolumn", _zp_frame_usage_panel);
     _zp_frame_usage_panel_rightcolumn:SetPoint("TOPLEFT", 80, 0)
@@ -207,20 +189,55 @@ function ZPownage_CreatePlayerConfigSettingsUI(_zpAddAchievementToQueue, _zpRese
 
     local _zp_panel_usage_fontStringLineResetDetails = _zp_frame_usage_panel_rightcolumn:CreateFontString("_zp_panel_usage_fontStringLineResetDetails", "OVERLAY", "GameTooltipText")
     _zp_panel_usage_fontStringLineResetDetails:SetPoint("TOPLEFT", 0, -10)
-    _zp_panel_usage_fontStringLineResetDetails:SetText('"Reset unit kills"')
+    _zp_panel_usage_fontStringLineResetDetails:SetText('"Reset kill count."')
     local _zp_panel_usage_fontStringLinePvpDetails = _zp_frame_usage_panel_rightcolumn:CreateFontString("_zp_panel_usage_fontStringLinePvpDetails", "OVERLAY", "GameTooltipText")
     _zp_panel_usage_fontStringLinePvpDetails:SetPoint("TOPLEFT", 0, -25)
-    _zp_panel_usage_fontStringLinePvpDetails:SetText('"Toggle player only kill mode. If disabled, it tracks all kills made by the player"')
+    _zp_panel_usage_fontStringLinePvpDetails:SetText('"Toggle Arena/Battleground only kill mode. If disabled, it tracks all kills."')
     local _zp_panel_usage_fontStringLineTestDetails = _zp_frame_usage_panel_rightcolumn:CreateFontString("_zp_panel_usage_fontStringLineTestDetails", "OVERLAY", "GameTooltipText")
     _zp_panel_usage_fontStringLineTestDetails:SetPoint("TOPLEFT", 0, -40)
-    _zp_panel_usage_fontStringLineTestDetails:SetText('"Test achievment display and audio playback"')
+    _zp_panel_usage_fontStringLineTestDetails:SetText('"Test achievement display and audio playback."')
     local _zp_panel_usage_fontStringLineUiDetails = _zp_frame_usage_panel_rightcolumn:CreateFontString("_zp_panel_usage_fontStringLineUiDetails", "OVERLAY", "GameTooltipText")
     _zp_panel_usage_fontStringLineUiDetails:SetPoint("TOPLEFT", 0, -55)
-    _zp_panel_usage_fontStringLineUiDetails:SetText('"Show addon settings UI and usage"')
+    _zp_panel_usage_fontStringLineUiDetails:SetText('"Show addon settings UI and usage."')
 
+    -- Notes panel
+
+    local _zp_frame_notes_panel = CreateFrame( "Frame", "_zp_frame_notes_panel", _zp_panel, "InsetFrameTemplate");
+    _zp_frame_notes_panel:SetPoint("TOPLEFT", 10, -315)
+    _zp_frame_notes_panel:SetSize(550, 100)
+
+    local _zp_frame_notes_panel_rightcolumn = CreateFrame( "Frame", "_zp_frame_notes_panel_rightcolumn", _zp_frame_notes_panel);
+    _zp_frame_notes_panel_rightcolumn:SetPoint("TOPLEFT", 80, 0)
+    _zp_frame_notes_panel_rightcolumn:SetSize(520, 90)
+
+    local _zp_frame_notes_panel_title_fontString = _zp_frame_notes_panel:CreateFontString("_zp_frame_notes_panel_title_fontString", "OVERLAY", "GameFontNormal")
+    _zp_frame_notes_panel_title_fontString:SetPoint("TOPLEFT", 2, 14)
+    _zp_frame_notes_panel_title_fontString:SetText("Notes:")
+
+    local _zp_panel_notes_fontStringLine1 = _zp_frame_notes_panel:CreateFontString("_zp_panel_notes_fontStringLine1", "OVERLAY", "GameTooltipText")
+    _zp_panel_notes_fontStringLine1:SetPoint("TOPLEFT", 10, -10)
+    _zp_panel_notes_fontStringLine1:SetText('World of Warcraft: Midnight (v12.+) has brought about several changes to this addon.')
+    
+    local _zp_panel_notes_fontStringLine2 = _zp_frame_notes_panel:CreateFontString("_zp_panel_notes_fontStringLine2", "OVERLAY", "GameTooltipText")
+    _zp_panel_notes_fontStringLine2:SetPoint("TOPLEFT", 10, -30)
+    _zp_panel_notes_fontStringLine2:SetText('Due to new combat restrictions placed on the WOW API, this addon can no longer track')
+
+    local _zp_panel_notes_fontStringLine3 = _zp_frame_notes_panel:CreateFontString("_zp_panel_notes_fontStringLine3", "OVERLAY", "GameTooltipText")
+    _zp_panel_notes_fontStringLine3:SetPoint("TOPLEFT", 10, -45)
+    _zp_panel_notes_fontStringLine3:SetText('kills by individual players, or send messages in chat channels during combat. For the')
+    
+    local _zp_panel_notes_fontStringLine4 = _zp_frame_notes_panel:CreateFontString("_zp_panel_notes_fontStringLine4", "OVERLAY", "GameTooltipText")
+    _zp_panel_notes_fontStringLine4:SetPoint("TOPLEFT", 10, -60)
+    _zp_panel_notes_fontStringLine4:SetText('time being, bragging is limited to emotes, and kills are tracked at the party level.')
+
+    local _zp_panel_notes_fontStringLine5 = _zp_frame_notes_panel:CreateFontString("_zp_panel_notes_fontStringLine5", "OVERLAY", "GameTooltipText")
+    _zp_panel_notes_fontStringLine5:SetPoint("TOPLEFT", 10, -80)
+    _zp_panel_notes_fontStringLine5:SetText('--Zxeltor')
+    
     -- Add the panel to the Blizzard Interface/Addons UI
-    local category, layout = Settings.RegisterCanvasLayoutCategory(_zp_panel, _zp_panel.name, _zp_panel.name);
-    category.ID = _zp_panel.name;
+
+    local category = Settings.RegisterCanvasLayoutCategory(_zp_panel, _zp_panel.name);
+    ZPownage_Settings_UPanel_ID = category.ID;
     Settings.RegisterAddOnCategory(category);
 
     _zp_isAddonSettingsFrameAdded = true
