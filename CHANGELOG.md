@@ -1,5 +1,8 @@
 #### ZPownage Versions
 
+#### v2.0.3
+Updating for WOW patch v12.0.1. No code changes.
+
 #### v2.0.2
 Updating for WOW patch v12.0.0.
 Midnight has brought about several changes to this addon. Due to new API combat restrictions, this addon can no longer track kills by player, or send messages in chat channels. For the time being, bragging is limited to emotes, and kills are tracked at the party level.
